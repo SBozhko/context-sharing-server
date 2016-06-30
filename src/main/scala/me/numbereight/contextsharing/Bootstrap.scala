@@ -4,6 +4,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.DeadLetter
 import akka.io.IO
+import me.numbereight.contextsharing.actor.ContextStorageActor
 import me.numbereight.contextsharing.actor.DeadLetterListenerActor
 import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
@@ -38,7 +39,7 @@ object Bootstrap {
     val isAliveActor = system.actorOf(IsAliveServiceActor.props(dynamoClient))
     val applicationInfoHttpService = ApplicationInfoHttpService(system, isAliveActor)
 
-    val ctxStorageActor = system.actorOf(UserStatsActor.props(dynamoClient))
+    val ctxStorageActor = system.actorOf(ContextStorageActor.props(dynamoClient))
     val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
 
     val userStatsActor = system.actorOf(UserStatsActor.props(dynamoClient))
