@@ -4,15 +4,16 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.DeadLetter
 import akka.io.IO
-import me.numbereight.contextsharing.actor.ContextStorageActor
 import me.numbereight.contextsharing.actor.DeadLetterListenerActor
 import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
+import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.DynamoDbClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
+import me.numbereight.contextsharing.http.UserStatsHttpService
 import org.slf4j.LoggerFactory
 import spray.can.Http
 import spray.can.Http.Bind
@@ -37,11 +38,14 @@ object Bootstrap {
     val isAliveActor = system.actorOf(IsAliveServiceActor.props(dynamoClient))
     val applicationInfoHttpService = ApplicationInfoHttpService(system, isAliveActor)
 
-    val ctxStorageActor = system.actorOf(ContextStorageActor.props(dynamoClient))
+    val ctxStorageActor = system.actorOf(UserStatsActor.props(dynamoClient))
     val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
 
+    val userStatsActor = system.actorOf(UserStatsActor.props(dynamoClient))
+    val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
+
     val restEndpointActor = system.actorOf(
-      RestEndpointActor.props(applicationInfoHttpService, ctxStorageHttpService),
+      RestEndpointActor.props(applicationInfoHttpService, ctxStorageHttpService, userStatsHttpService),
       RestEndpointActor.Name)
 
 
