@@ -26,7 +26,7 @@ object ContextStorageActor {
   val Name = "contextStorageActor"
 
   def props(dynamoClient: DynamoDbClient): Props = {
-    Props.create(classOf[UserStatsActor], dynamoClient)
+    Props.create(classOf[ContextStorageActor], dynamoClient)
   }
 
 }
