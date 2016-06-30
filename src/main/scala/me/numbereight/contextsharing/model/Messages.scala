@@ -2,6 +2,7 @@ package me.numbereight.contextsharing.model
 
 import me.numbereight.contextsharing.util.BuildInfoProvider
 import me.numbereight.contextsharing.util.GitInfoProvider
+import spray.routing.RequestContext
 
 case class Response(messages: String*)
 
@@ -35,3 +36,14 @@ object VersionResponse {
     )
   }
 }
+
+
+case class SubmitContextRequest(
+  userId: String,
+  vendorId: String,
+  contextData: List[ContextData]
+  )
+
+case class SubmitContextActorRequest(sprayCtx: RequestContext, request: SubmitContextRequest)
+
+case class ContextData(ctxType: String, ctxValue: String)
