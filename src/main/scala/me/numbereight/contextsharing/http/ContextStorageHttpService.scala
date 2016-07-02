@@ -3,9 +3,11 @@ package me.numbereight.contextsharing.http
 import akka.actor.ActorRef
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSystem
+import me.numbereight.contextsharing.model.ContextNames
 import me.numbereight.contextsharing.model.SubmitContextActorRequest
 import me.numbereight.contextsharing.model.SubmitContextRequest
 import org.json4s.jackson.Serialization
+import spray.http.StatusCodes
 import spray.routing.Route
 
 trait ContextStorageHttpService extends BaseHttpService {
@@ -16,7 +18,11 @@ trait ContextStorageHttpService extends BaseHttpService {
     pathPrefix(ApiVersion) {
       path("contexts") { sprayCtx =>
         val req = Serialization.read[SubmitContextRequest](sprayCtx.request.entity.asString)
-        ctxStorageActor.tell(SubmitContextActorRequest(sprayCtx, req), ActorRef.noSender)
+        req.contextData.forall(item => ContextNames.valid(item.ctxGroup, item.ctxName)) match {
+          case true => ctxStorageActor.tell(SubmitContextActorRequest(sprayCtx, req), ActorRef.noSender)
+          case false =>
+            sprayCtx.complete(StatusCodes.BadRequest, "Wrong ContextGroup(s) or ContextName(s)")
+        }
       }
     }
   }

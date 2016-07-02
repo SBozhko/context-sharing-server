@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.http
 import akka.actor.ActorRef
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSystem
-import me.numbereight.contextsharing.actor.UserStatsActor
+import me.numbereight.contextsharing.model.ContextGroups
 import me.numbereight.contextsharing.model.GetUserStatsActorRequest
 import me.numbereight.contextsharing.model.GetUserStatsRequest
 import spray.http.StatusCodes
@@ -20,16 +20,16 @@ trait UserStatsHttpService extends BaseHttpService {
       path("contexts" / Segment / Segment) { (userId, vendorId) =>
         parameters('ctx.?) { contexts => sprayCtx =>
           Try {
-            val ctxList = contexts match {
+            val ctxGroups = contexts match {
               case Some(ctxAsString) => ctxAsString.split(",").toList
-              case None => UserStatsActor.AllowedCtxTypes.toList
+              case None => ContextGroups.All.toList
             }
-            ctxList.forall(item => UserStatsActor.AllowedCtxTypes.contains(item)) match {
+            ctxGroups.forall(item => ContextGroups.valid(item)) match {
               case true =>
-                val req = GetUserStatsRequest(userId, vendorId, ctxList)
+                val req = GetUserStatsRequest(userId, vendorId, ctxGroups)
                 userStatsActor.tell(GetUserStatsActorRequest(sprayCtx, req), ActorRef.noSender)
               case false =>
-                val errMsg = s"Context types should be comma separated, like: ${UserStatsActor.AllowedCtxTypes.mkString(",")}"
+                val errMsg = s"Context types should be comma separated, like: ${ContextGroups.All.mkString(",")}"
                 sprayCtx.complete(StatusCodes.BadRequest, errMsg)
             }
           }.recover {
