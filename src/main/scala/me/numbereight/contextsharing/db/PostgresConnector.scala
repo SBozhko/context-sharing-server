@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.db
 import javax.sql.DataSource
 
 import com.zaxxer.hikari.HikariDataSource
-import me.numbereight.contextsharing.config.PostgresConfig
+import me.numbereight.contextsharing.config.PostgresConfigParams
 import scalikejdbc.ConnectionPool
 import scalikejdbc.DataSourceConnectionPool
 
@@ -11,7 +11,7 @@ object PostgresConnector {
 
   Class.forName("org.postgresql.Driver")
 
-  def createConnectionPool(name: String, connectionParams: PostgresConfig) = {
+  def createConnectionPool(name: String, connectionParams: PostgresConfigParams) = {
     val dataSource: DataSource = {
       val ds = new HikariDataSource()
       ds.setConnectionTimeout(connectionParams.connectionTimeout.toMillis)
