@@ -6,10 +6,11 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 
 case class RestEndpointConfig(host: String, port: Int)
-
 case class PostgresConfigParams(url: String, user: String, password: String, connectionTimeout: Duration)
 
 object RuntimeConfiguration extends StrictLogging {
+
+  private val config = ConfigFactory.load
 
   val restEndpointConfig = {
     val host = config.getString("rest-endpoint.host")
@@ -23,6 +24,6 @@ object RuntimeConfiguration extends StrictLogging {
     val timeout = config.getDuration("postgres.connection-timeout")
     PostgresConfigParams(url, user, password, timeout)
   }
-  private val config = ConfigFactory.load
+
 
 }
