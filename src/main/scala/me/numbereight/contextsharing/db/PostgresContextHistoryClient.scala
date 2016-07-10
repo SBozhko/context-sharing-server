@@ -5,6 +5,7 @@ import me.numbereight.contextsharing.model.CtxStats
 import me.numbereight.contextsharing.model.GetUserStatsRequest
 import me.numbereight.contextsharing.model.SubmitContextRequest
 import org.joda.time.DateTime
+import org.slf4j.LoggerFactory
 import scalikejdbc.NamedDB
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
@@ -12,15 +13,28 @@ import scala.collection.mutable
 
 class PostgresContextHistoryClient(cpName: String) {
 
+  val log = LoggerFactory.getLogger(getClass)
+
   def isAlive: Boolean = {
-    true
+    try {
+      NamedDB(cpName) localTx { implicit session =>
+        sql"""
+              SELECT 1
+          """.execute.apply()
+        true
+      }
+    } catch {
+      case e: Exception =>
+        log.error("Unable to create table", e)
+        false
+    }
   }
 
   def initDb() = {
     try {
       NamedDB(cpName) localTx { implicit session =>
         sql"""
-              CREATE TABLE  IF NOT EXISTS public.context_history	(
+              CREATE TABLE  IF NOT EXISTS context_history	(
                 id serial primary key,
                 user_id varchar(50),
                 advertising_id varchar(50),
@@ -33,7 +47,7 @@ class PostgresContextHistoryClient(cpName: String) {
       }
     } catch {
       case e: Exception =>
-        e.printStackTrace()
+        log.error("Unable to create table", e)
     }
   }
 
@@ -54,7 +68,7 @@ class PostgresContextHistoryClient(cpName: String) {
       }
     } catch {
       case e: Exception =>
-        println(e)
+        log.error("Updable to store context data", e)
     }
   }
 
@@ -72,35 +86,39 @@ class PostgresContextHistoryClient(cpName: String) {
             rs.string("context_name") -> rs.long("context_started_at_unix_time")
           }.list().apply()
 
-          val currentTimeStamp = new DateTime().getMillis
-          val intervals = new mutable.HashMap[String, Long]()
+          result match {
+            case Nil => CtxStats(ctxGroup, List.empty)
+            case _ =>
+              val currentTimeStamp = new DateTime().getMillis
+              val intervals = new mutable.HashMap[String, Long]()
 
-          result.reverse.zipWithIndex.foreach { (item: ((String, Long), Int)) =>
-            val id = item._2
-            val ctx = item._1
+              result.reverse.zipWithIndex.foreach { (item: ((String, Long), Int)) =>
+                val id = item._2
+                val ctx = item._1
 
-            if (id == 0) {
-              val diff = currentTimeStamp - ctx._2
-              intervals.put(ctx._1, diff)
-            } else {
-              val diff = result.reverse.lift(id - 1).get._2 - ctx._2
-              val prevDiff = intervals.getOrElse(ctx._1, 0l)
-              intervals.put(ctx._1, diff + prevDiff)
-            }
+                if (id == 0) {
+                  val diff = currentTimeStamp - ctx._2
+                  intervals.put(ctx._1, diff)
+                } else {
+                  val diff = result.reverse.lift(id - 1).get._2 - ctx._2
+                  val prevDiff = intervals.getOrElse(ctx._1, 0l)
+                  intervals.put(ctx._1, diff + prevDiff)
+                }
+              }
+
+              val totalDuration = currentTimeStamp - result.head._2
+
+              val percentages = intervals.map { (item: (String, Long)) =>
+                val percent = item._2.toDouble / totalDuration * 100
+                new CtxPercentage(item._1, percent)
+              }
+              CtxStats(ctxGroup, percentages.toList)
           }
-
-          val totalDuration = currentTimeStamp - result.head._2
-
-          val percentages = intervals.map { (item: (String, Long)) =>
-            val percent = item._2.toDouble / totalDuration * 100
-            new CtxPercentage(item._1, percent)
-          }
-          CtxStats(ctxGroup, percentages.toList)
         }
       }
     } catch {
       case e: Exception =>
-        println(e)
+        log.error("Unable to count user stats", e)
         Nil
     }
   }
