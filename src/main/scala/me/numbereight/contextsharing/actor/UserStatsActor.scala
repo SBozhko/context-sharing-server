@@ -5,7 +5,6 @@ import akka.actor.Actor
 import akka.actor.Props
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
 import me.numbereight.contextsharing.model.ContextNames
-import me.numbereight.contextsharing.model.CtxStats
 import me.numbereight.contextsharing.model.GetUserStatsActorRequest
 import me.numbereight.contextsharing.model.GetUserStatsResponse
 import spray.http.StatusCodes
@@ -15,8 +14,7 @@ class UserStatsActor(client: PostgresContextHistoryClient) extends BaseHttpServi
 
   override def receive: Actor.Receive = {
     case msg: GetUserStatsActorRequest =>
-      // TODO: go to DB and check stats
-      val filteredValues = msg.request.ctxGroups.map(item => CtxStats(item, UserStatsActor.UserStatsMap(item)))
+      val filteredValues = client.getStats(msg.request)
       sendResponse(msg.sprayCtx, StatusCodes.OK, GetUserStatsResponse(filteredValues))
       log.debug(s"Stored contextData: ${msg.request}")
     case something: Any =>
