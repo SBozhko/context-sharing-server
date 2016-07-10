@@ -24,6 +24,9 @@
         <spray.version>1.3.3</spray.version>
         <log4j-core.version>2.5</log4j-core.version>
         <logback.version>1.1.0</logback.version>
+        <scalikejdbc.version>2.2.1</scalikejdbc.version>
+        <hikaricp.version>2.2.5</hikaricp.version>
+        <joda.time.version>2.5</joda.time.version>
     </properties>
 
     <dependencies>
@@ -84,6 +87,30 @@
             <groupId>org.json4s</groupId>
             <artifactId>json4s-jackson_2.11</artifactId>
             <version>${json4s.version}</version>
+        </dependency>
+
+        <!--MsSQL and JDBC-->
+        <dependency>
+            <groupId>org.scalikejdbc</groupId>
+            <artifactId>scalikejdbc_2.11</artifactId>
+            <version>${scalikejdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP-java6</artifactId>
+            <version>${hikaricp.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1208</version>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda.time.version}</version>
         </dependency>
 
         <!-- TEST DEPENDENCIES -->

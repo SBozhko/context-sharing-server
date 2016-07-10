@@ -11,7 +11,8 @@ import me.numbereight.contextsharing.actor.LifecycleListenerActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
 import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
-import me.numbereight.contextsharing.db.DynamoDbClient
+import me.numbereight.contextsharing.db.PostgresConnector
+import me.numbereight.contextsharing.db.PostgresContextHistoryClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
@@ -27,6 +28,11 @@ object Bootstrap {
     val runtimeConfig = RuntimeConfiguration
     val restConfig = runtimeConfig.restEndpointConfig
 
+    val pgPoolName = "postgres"
+    PostgresConnector.createConnectionPool(pgPoolName, runtimeConfig.PostgresConfig)
+    val pgClient = new PostgresContextHistoryClient(pgPoolName)
+    pgClient.initDb()
+
     val system = ActorSystem("contextSharing")
 
     val deadLetterListener = system.actorOf(
@@ -34,15 +40,15 @@ object Bootstrap {
       DeadLetterListenerActor.Name)
     system.eventStream.subscribe(deadLetterListener, classOf[DeadLetter])
 
-    val dynamoClient = new DynamoDbClient
 
-    val isAliveActor = system.actorOf(IsAliveServiceActor.props(dynamoClient))
+
+    val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgClient))
     val applicationInfoHttpService = ApplicationInfoHttpService(system, isAliveActor)
 
-    val ctxStorageActor = system.actorOf(ContextStorageActor.props(dynamoClient))
+    val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgClient))
     val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
 
-    val userStatsActor = system.actorOf(UserStatsActor.props(dynamoClient))
+    val userStatsActor = system.actorOf(UserStatsActor.props(pgClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
 
     val restEndpointActor = system.actorOf(

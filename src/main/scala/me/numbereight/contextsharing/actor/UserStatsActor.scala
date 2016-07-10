@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.actor
 
 import akka.actor.Actor
 import akka.actor.Props
-import me.numbereight.contextsharing.db.DynamoDbClient
+import me.numbereight.contextsharing.db.PostgresContextHistoryClient
 import me.numbereight.contextsharing.model.ContextNames
 import me.numbereight.contextsharing.model.CtxStats
 import me.numbereight.contextsharing.model.GetUserStatsActorRequest
@@ -11,7 +11,7 @@ import me.numbereight.contextsharing.model.GetUserStatsResponse
 import spray.http.StatusCodes
 
 
-class UserStatsActor(dynamoClient: DynamoDbClient) extends BaseHttpServiceActor {
+class UserStatsActor(client: PostgresContextHistoryClient) extends BaseHttpServiceActor {
 
   override def receive: Actor.Receive = {
     case msg: GetUserStatsActorRequest =>
@@ -31,8 +31,8 @@ object UserStatsActor {
 
   val UserStatsMap = ContextNames.SampleUserStats.map(item => item.ctxGroup -> item.values).toMap
 
-  def props(dynamoClient: DynamoDbClient): Props = {
-    Props.create(classOf[UserStatsActor], dynamoClient)
+  def props(client: PostgresContextHistoryClient): Props = {
+    Props.create(classOf[UserStatsActor], client)
   }
 
 }

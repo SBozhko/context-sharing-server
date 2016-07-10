@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.actor
 import akka.actor.Actor
 import akka.actor.Props
 import me.numbereight.contextsharing.actor.IsAliveServiceActor.IsAlive
-import me.numbereight.contextsharing.db.DynamoDbClient
+import me.numbereight.contextsharing.db.PostgresContextHistoryClient
 import me.numbereight.contextsharing.model.IsAliveResponse
 import me.numbereight.contextsharing.model.Response
 import spray.http.StatusCodes
@@ -13,12 +13,12 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-class IsAliveServiceActor(dynamoClient: DynamoDbClient) extends BaseHttpServiceActor {
+class IsAliveServiceActor(client: PostgresContextHistoryClient) extends BaseHttpServiceActor {
 
   override def receive: Actor.Receive = {
     case msg: IsAlive =>
       if (msg.checkDatabase) {
-        Try(dynamoClient.isAlive()) match {
+        Try(client.isAlive) match {
           case Success(success) =>
             if (success) {
               sendResponse(msg.ctx, StatusCodes.OK, IsAliveResponse(apiIsAlive = success, Some(true)))
@@ -43,8 +43,8 @@ object IsAliveServiceActor {
 
   val Name = "isAliveServiceActor"
 
-  def props(dynamoClient: DynamoDbClient): Props = {
-    Props.create(classOf[IsAliveServiceActor], dynamoClient)
+  def props(client: PostgresContextHistoryClient): Props = {
+    Props.create(classOf[IsAliveServiceActor], client)
   }
 
   case class IsAlive(ctx: RequestContext, checkDatabase: Boolean)
