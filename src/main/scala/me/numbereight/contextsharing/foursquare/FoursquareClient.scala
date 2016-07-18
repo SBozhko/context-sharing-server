@@ -1,64 +1,101 @@
 package me.numbereight.contextsharing.foursquare
 
 import me.numbereight.contextsharing.model.ContextNames.Place
+import org.apache.commons.io.IOUtils
+import org.apache.http.NameValuePair
+import org.apache.http.client.fluent.Request
+import org.apache.http.message.BasicNameValuePair
 import org.json4s.DefaultFormats
-import org.json4s.jackson.Serialization
+import org.json4s.JsonAST.JArray
+import org.json4s.JsonAST.JInt
+import org.json4s.jackson.JsonMethods._
 import org.slf4j.LoggerFactory
-import play.api.libs.ws.WSClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
 import scala.util.Try
 
-// TODO: use separate
-
-case class LatLon(lat: Double, lon: Double) {
+case class LatLong(lat: Double, lon: Double) {
   def foursquareString: String = s"$lat,$lon"
 }
 
-object LatLon {
-  def apply(str: String): LatLon = {
+object LatLong {
+  def apply(str: String): LatLong = {
     val latLon = str.split(",")
-    LatLon(latLon(0).toDouble, latLon(1).toDouble)
+    LatLong(latLon(0).toDouble, latLon(1).toDouble)
   }
 }
 
-class FoursquareClient(httpClient: WSClient) {
+class FoursquareClient {
   implicit val formats = DefaultFormats
   val log = LoggerFactory.getLogger(getClass)
 
-  def performLocationCategoryQuery(location: LatLon, place: String): Future[Option[VenueResponse]] = {
+  def performLocationCategoryQuery(location: LatLong, place: String): Option[Int] = {
     FoursquareClient.ContextCategoryIds.get(place) match {
       case Some(categoryId) =>
-        httpClient
-          .url(FoursquareClient.VenueEndpoint)
-          .withQueryString(
-            "locale" -> FoursquareClient.Locale,
-            "limit" -> FoursquareClient.Limit,
-            "client_secret" -> FoursquareClient.ClientSecret,
-            "intent" -> FoursquareClient.Intent,
-            "m" -> FoursquareClient.Mode,
-            "ll" -> location.foursquareString,
-            "categoryId" -> categoryId,
-            "v" -> FoursquareClient.Version,
-            "client_id" -> FoursquareClient.ClientId,
-            "radius" -> FoursquareClient.Radius)
-          .get()
-          .map { response =>
-            if (!(200 to 299).contains(response.status)) {
-              log.error(s"Received unexpected status ${response.status} : ${response.body}")
-            }
-            Try(Serialization.read[VenueResponse](response.body)) match {
-              case Success(res) => Some(res)
-              case Failure(t) =>
-                log.error("Unable to parse response from Foursquare", t)
+        val queryParams = Map(
+          "locale" -> FoursquareClient.Locale,
+          "limit" -> FoursquareClient.Limit,
+          "client_secret" -> FoursquareClient.ClientSecret,
+          "intent" -> FoursquareClient.Intent,
+          "m" -> FoursquareClient.Mode,
+          "ll" -> location.foursquareString,
+          "categoryId" -> categoryId,
+          "v" -> FoursquareClient.Version,
+          "client_id" -> FoursquareClient.ClientId,
+          "radius" -> FoursquareClient.Radius)
+        val queryString = queryParams2String(queryParams)
+
+        val httpResponse = Request.Get(s"${FoursquareClient.VenueEndpoint}?$queryString")
+          .execute()
+          .returnResponse()
+
+        val jsonResponse = IOUtils.toString(httpResponse.getEntity.getContent)
+        val statusCode = httpResponse.getStatusLine.getStatusCode
+
+        statusCode match {
+          case code if 200 until 300 contains code =>
+            val parsedResponse = parse(jsonResponse, useBigDecimalForDouble = false, useBigIntForLong = false)
+            Try {
+              parsedResponse \ "response" \ "venues" match {
+                case JArray(List()) =>
+                  None
+                case JArray(List(venue)) =>
+                  val distance = venue \ "location" \ "distance"
+                  distance match {
+                    case JInt(distanceVal) =>
+                      Some(distanceVal.intValue())
+                    case _ =>
+                      log.error(s"Unable to parse distance from Foursquare response. $jsonResponse")
+                      None
+                  }
+                case _ =>
+                  log.error(s"Unable to parse response from Foursquare. $jsonResponse")
+                  None
+              }
+            }.recover {
+              case t: Throwable =>
+                log.error(s"Unable to parse response from Foursquare. $jsonResponse", t)
                 None
-            }
-          }
-      case None => Future(None)
+            }.get
+          case _ =>
+            log.error(s"Received unexpected status $statusCode. Response: $jsonResponse")
+            None
+        }
+      case None =>
+        log.error(s"Unknown place: $place. No categoryId")
+        None
     }
+  }
+
+  private def queryParams2String(params: Map[String, String]): String = {
+    params.map {
+      case (key, value) => s"$key=$value"
+    }.mkString("&")
+  }
+
+  private def params2Form(params: Map[String, String]): Seq[NameValuePair] = {
+    params.map {
+      case (key: String, value: String) => new BasicNameValuePair(key, value)
+    }.toSeq
   }
 
 }

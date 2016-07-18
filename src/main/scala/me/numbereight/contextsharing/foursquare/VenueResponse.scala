@@ -1,6 +1,6 @@
 package me.numbereight.contextsharing.foursquare
 
-case class VenueResponse(meta: Meta, response: Response)
+case class VenueResponse(meta: Meta, response: Option[Response])
 
 case class Meta(code: Int, requestId: String)
 

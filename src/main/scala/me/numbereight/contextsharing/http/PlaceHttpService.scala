@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.http
 import akka.actor.ActorRef
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSystem
-import me.numbereight.contextsharing.foursquare.LatLon
+import me.numbereight.contextsharing.foursquare.LatLong
 import me.numbereight.contextsharing.model.GetPlace
 import me.numbereight.contextsharing.model.Response
 import me.numbereight.contextsharing.model.SubmitUserInfoRequest
@@ -24,7 +24,7 @@ trait PlaceHttpService extends BaseHttpService {
       path("places") {
         parameters('ll, 'vendor_id.?) { (latLong, vendorId) => sprayCtx =>
           Try {
-            val latLon = LatLon(latLong)
+            val latLon = LatLong(latLong)
             val req = GetPlace(sprayCtx, latLon, vendorId)
             placeActor.tell(req, ActorRef.noSender)
           }.recover {
