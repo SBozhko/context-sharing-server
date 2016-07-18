@@ -34,7 +34,7 @@ class PostgresContextHistoryClient(cpName: String) {
     try {
       NamedDB(cpName) localTx { implicit session =>
         sql"""
-              CREATE TABLE  IF NOT EXISTS context_history	(
+              CREATE TABLE IF NOT EXISTS context_history (
                 id serial primary key,
                 user_id varchar(50),
                 advertising_id varchar(50),
@@ -42,6 +42,22 @@ class PostgresContextHistoryClient(cpName: String) {
                 context_group varchar(20),
                 context_name varchar(20),
                 context_started_at_unix_time bigint
+              );
+              CREATE TABLE IF NOT EXISTS place_history (
+                id serial primary key,
+                user_id varchar(50),
+                vendor_id varchar(50),
+                latitude double precision,
+                longitude double precision,
+                place varchar(20),
+                check_in_at_unix_time bigint
+              );
+              CREATE TABLE IF NOT EXISTS user_profiles (
+                id serial primary key,
+                user_id varchar(50),
+                vendor_id varchar(50),
+                advertising_id varchar(50),
+                timezone_offset_minutes smallint
               )
           """.execute.apply()
       }
