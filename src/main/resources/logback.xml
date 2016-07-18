@@ -63,7 +63,7 @@
 
     <!--<logger name="scalikejdbc" level="INFO"/>-->
 
-    <root level="DEBUG">
+    <root level="debug">
         <appender-ref ref="DEBUG_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
         <appender-ref ref="CONSOLE"/>

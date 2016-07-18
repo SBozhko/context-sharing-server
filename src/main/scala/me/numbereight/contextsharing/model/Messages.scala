@@ -1,5 +1,6 @@
 package me.numbereight.contextsharing.model
 
+import me.numbereight.contextsharing.foursquare.LatLon
 import me.numbereight.contextsharing.util.BuildInfoProvider
 import me.numbereight.contextsharing.util.GitInfoProvider
 import spray.routing.RequestContext
@@ -54,3 +55,8 @@ case class GetUserStatsActorRequest(sprayCtx: RequestContext, request: GetUserSt
 case class GetUserStatsResponse(userStats: List[CtxStats])
 case class CtxStats(ctxGroup: String, values: List[CtxPercentage])
 case class CtxPercentage(ctxName: String, percentage: Double)
+
+case class GetPlace(sprayCtx: RequestContext, latLon: LatLon, vendorId: Option[String])
+case class PlaceResponse(place: String)
+
+case class SubmitUserInfoRequest(userId: String, vendorId: String, timezone: String)

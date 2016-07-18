@@ -191,6 +191,7 @@ object ContextNames extends Contexts {
     val FoodRelated = "FoodRelated"
     val Other = "Other"
     override val All = Set(Home, Office, Library, Gym, Beach, ShopsAndServices, FoodRelated, Other)
+    val AllMeaningful = Set(Home, Office, Library, Gym, Beach, ShopsAndServices, FoodRelated)
   }
 
   object Situation extends Contexts {

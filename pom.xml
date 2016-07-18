@@ -41,6 +41,13 @@
             <version>${typesafe.config.version}</version>
         </dependency>
 
+        <!--Http client-->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-ws_2.11</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+
         <!--Logging-->
         <dependency>
             <groupId>ch.qos.logback</groupId>

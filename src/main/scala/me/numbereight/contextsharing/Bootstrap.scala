@@ -4,19 +4,25 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.DeadLetter
 import akka.io.IO
+import akka.stream.ActorMaterializer
 import me.numbereight.contextsharing.actor.ContextStorageActor
 import me.numbereight.contextsharing.actor.DeadLetterListenerActor
 import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
+import me.numbereight.contextsharing.actor.PlaceActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
 import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
+import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
+import me.numbereight.contextsharing.http.PlaceHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
+import org.asynchttpclient.DefaultAsyncHttpClientConfig
 import org.slf4j.LoggerFactory
+import play.api.libs.ws.ahc.AhcWSClient
 import spray.can.Http
 import spray.can.Http.Bind
 
@@ -33,13 +39,15 @@ object Bootstrap {
     val pgClient = new PostgresContextHistoryClient(pgPoolName)
     pgClient.initDb()
 
-    val system = ActorSystem("contextSharing")
+    implicit val system = ActorSystem("contextSharing")
 
     val deadLetterListener = system.actorOf(
       DeadLetterListenerActor.props(),
       DeadLetterListenerActor.Name)
     system.eventStream.subscribe(deadLetterListener, classOf[DeadLetter])
 
+    val httpClient = new AhcWSClient(new DefaultAsyncHttpClientConfig.Builder().build())(ActorMaterializer())
+    val fsClient = new FoursquareClient(httpClient)
 
 
     val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgClient))
@@ -51,8 +59,16 @@ object Bootstrap {
     val userStatsActor = system.actorOf(UserStatsActor.props(pgClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
 
+    val placeActor = system.actorOf(PlaceActor.props(fsClient))
+    val placeHttpService = PlaceHttpService(system, placeActor)
+
     val restEndpointActor = system.actorOf(
-      RestEndpointActor.props(applicationInfoHttpService, ctxStorageHttpService, userStatsHttpService),
+      RestEndpointActor.props(
+        applicationInfoHttpService,
+        ctxStorageHttpService,
+        userStatsHttpService,
+        placeHttpService
+      ),
       RestEndpointActor.Name)
 
 
