@@ -8,13 +8,20 @@ import me.numbereight.contextsharing.actor.ContextStorageActor
 import me.numbereight.contextsharing.actor.DeadLetterListenerActor
 import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
+import me.numbereight.contextsharing.actor.PlaceActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
+import me.numbereight.contextsharing.actor.UserProfileActor
 import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
+import me.numbereight.contextsharing.db.PostgresPlaceHistoryClient
+import me.numbereight.contextsharing.db.PostgresUserProfileClient
+import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
+import me.numbereight.contextsharing.http.PlaceHttpService
+import me.numbereight.contextsharing.http.UserProfileHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
 import org.slf4j.LoggerFactory
 import spray.can.Http
@@ -30,10 +37,12 @@ object Bootstrap {
 
     val pgPoolName = "postgres"
     PostgresConnector.createConnectionPool(pgPoolName, runtimeConfig.PostgresConfig)
-    val pgClient = new PostgresContextHistoryClient(pgPoolName)
-    pgClient.initDb()
+    PostgresConnector.initDb(pgPoolName)
+    val pgContextClient = new PostgresContextHistoryClient(pgPoolName)
+    val pgPlaceClient = new PostgresPlaceHistoryClient(pgPoolName)
+    val pgUserProfileClient = new PostgresUserProfileClient(pgPoolName)
 
-    val system = ActorSystem("contextSharing")
+    implicit val system = ActorSystem("contextSharing")
 
     val deadLetterListener = system.actorOf(
       DeadLetterListenerActor.props(),
@@ -41,18 +50,29 @@ object Bootstrap {
     system.eventStream.subscribe(deadLetterListener, classOf[DeadLetter])
 
 
-
-    val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgClient))
+    val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgPoolName))
     val applicationInfoHttpService = ApplicationInfoHttpService(system, isAliveActor)
 
-    val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgClient))
+    val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgContextClient))
     val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
 
-    val userStatsActor = system.actorOf(UserStatsActor.props(pgClient))
+    val userStatsActor = system.actorOf(UserStatsActor.props(pgContextClient, pgUserProfileClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
 
+    val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient(), pgPlaceClient))
+    val placeHttpService = PlaceHttpService(system, placeActor)
+
+    val userProfileActor = system.actorOf(UserProfileActor.props(pgUserProfileClient))
+    val userProfileHttpService = UserProfileHttpService(system, userProfileActor)
+
     val restEndpointActor = system.actorOf(
-      RestEndpointActor.props(applicationInfoHttpService, ctxStorageHttpService, userStatsHttpService),
+      RestEndpointActor.props(
+        applicationInfoHttpService,
+        ctxStorageHttpService,
+        userStatsHttpService,
+        placeHttpService,
+        userProfileHttpService
+      ),
       RestEndpointActor.Name)
 
 

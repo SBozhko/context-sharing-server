@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.actor
 import akka.actor.Actor
 import akka.actor.Props
 import me.numbereight.contextsharing.actor.IsAliveServiceActor.IsAlive
-import me.numbereight.contextsharing.db.PostgresContextHistoryClient
+import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.model.IsAliveResponse
 import me.numbereight.contextsharing.model.Response
 import spray.http.StatusCodes
@@ -13,12 +13,12 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-class IsAliveServiceActor(client: PostgresContextHistoryClient) extends BaseHttpServiceActor {
+class IsAliveServiceActor(dbPoolName: String) extends BaseHttpServiceActor {
 
   override def receive: Actor.Receive = {
     case msg: IsAlive =>
       if (msg.checkDatabase) {
-        Try(client.isAlive) match {
+        Try(PostgresConnector.isAlive(dbPoolName)) match {
           case Success(success) =>
             if (success) {
               sendResponse(msg.ctx, StatusCodes.OK, IsAliveResponse(apiIsAlive = success, Some(true)))
@@ -43,8 +43,8 @@ object IsAliveServiceActor {
 
   val Name = "isAliveServiceActor"
 
-  def props(client: PostgresContextHistoryClient): Props = {
-    Props.create(classOf[IsAliveServiceActor], client)
+  def props(dbPoolName: String): Props = {
+    Props.create(classOf[IsAliveServiceActor], dbPoolName)
   }
 
   case class IsAlive(ctx: RequestContext, checkDatabase: Boolean)

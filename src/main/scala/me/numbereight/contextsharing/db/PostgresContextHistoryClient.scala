@@ -15,42 +15,6 @@ class PostgresContextHistoryClient(cpName: String) {
 
   val log = LoggerFactory.getLogger(getClass)
 
-  def isAlive: Boolean = {
-    try {
-      NamedDB(cpName) localTx { implicit session =>
-        sql"""
-              SELECT 1
-          """.execute.apply()
-        true
-      }
-    } catch {
-      case e: Exception =>
-        log.error("Unable to create table", e)
-        false
-    }
-  }
-
-  def initDb() = {
-    try {
-      NamedDB(cpName) localTx { implicit session =>
-        sql"""
-              CREATE TABLE  IF NOT EXISTS context_history	(
-                id serial primary key,
-                user_id varchar(50),
-                advertising_id varchar(50),
-                vendor_id varchar(50),
-                context_group varchar(20),
-                context_name varchar(20),
-                context_started_at_unix_time bigint
-              )
-          """.execute.apply()
-      }
-    } catch {
-      case e: Exception =>
-        log.error("Unable to create table", e)
-    }
-  }
-
   def saveContextData(request: SubmitContextRequest): Unit = {
     try {
       NamedDB(cpName) localTx { implicit session =>
@@ -72,14 +36,17 @@ class PostgresContextHistoryClient(cpName: String) {
     }
   }
 
-  def getStats(request: GetUserStatsRequest): List[CtxStats] = {
+  def getStats(request: GetUserStatsRequest, sinceUnixTime: Long): List[CtxStats] = {
     try {
       NamedDB(cpName) localTx { implicit session =>
         request.ctxGroups.map { ctxGroup =>
           val select =
             sql"""
                 SELECT context_name, context_started_at_unix_time FROM context_history
-                WHERE user_id = ${request.userId} AND vendor_id = ${request.vendorId} AND context_group = $ctxGroup
+                WHERE user_id = ${request.userId}
+                AND vendor_id = ${request.vendorId}
+                AND context_group = $ctxGroup
+                AND context_started_at_unix_time >= $sinceUnixTime
                 ORDER BY context_started_at_unix_time ASC
             """
           val result: List[(String, Long)] = select.map { rs =>

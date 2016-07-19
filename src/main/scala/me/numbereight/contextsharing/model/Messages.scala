@@ -1,5 +1,6 @@
 package me.numbereight.contextsharing.model
 
+import me.numbereight.contextsharing.foursquare.LatLong
 import me.numbereight.contextsharing.util.BuildInfoProvider
 import me.numbereight.contextsharing.util.GitInfoProvider
 import spray.routing.RequestContext
@@ -49,8 +50,24 @@ case class SubmitContextRequest(
 case class SubmitContextActorRequest(sprayCtx: RequestContext, request: SubmitContextRequest)
 case class ContextData(ctxGroup: String, ctxName: String)
 
-case class GetUserStatsRequest(userId: String, vendorId: String, ctxGroups: List[String])
+case class GetUserStatsRequest(userId: String, vendorId: String, ctxGroups: List[String], period: String)
 case class GetUserStatsActorRequest(sprayCtx: RequestContext, request: GetUserStatsRequest)
 case class GetUserStatsResponse(userStats: List[CtxStats])
 case class CtxStats(ctxGroup: String, values: List[CtxPercentage])
 case class CtxPercentage(ctxName: String, percentage: Double)
+object StatsPeriod {
+  val Day = "day"
+  val Week = "week"
+  val Month = "month"
+  val All = Set(Day, Week, Month)
+  def valid(period: String): Boolean = All.contains(period)
+}
+
+case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, vendorId: Option[String])
+case class PlaceResponse(place: String)
+case class PlaceEvent(latLong: LatLong, vendorId: String, place: String)
+
+case class SubmitUserInfoRequest(userId: String, vendorId: String, advertisingId: String, timezone: String)
+case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId: String, timezoneOffsetMins: Int)
+case class SubmitUserProfile(sprayCtx: RequestContext, request: SubmitUserInfoMessage)
+case class UserProfileResponse(profileId: Long)
