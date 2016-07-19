@@ -24,7 +24,7 @@ class PostgresContextHistoryClient(cpName: String) {
         request.contextData.foreach { ctxPair =>
           val insert =
             sql"""
-                INSERT INTO context_history (profile_id, context_group, context_name, context_started_at_unix_time)
+                INSERT INTO context_history (user_profile_id, context_group, context_name, context_started_at_unix_time)
                 VALUES (${request.profileId}, ${ctxPair.ctxGroup}, ${ctxPair.ctxName}, $date)
             """
           insert.updateAndReturnGeneratedKey().apply()
@@ -32,7 +32,7 @@ class PostgresContextHistoryClient(cpName: String) {
       }
     } catch {
       case e: Exception =>
-        log.error("Updable to store context data", e)
+        log.error("Unable to store context data", e)
     }
   }
 
