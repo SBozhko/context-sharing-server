@@ -43,7 +43,7 @@ class PostgresContextHistoryClient(cpName: String) {
           val select =
             sql"""
                 SELECT context_name, context_started_at_unix_time FROM context_history
-                WHERE profile_id = ${request.profileId}
+                WHERE user_profile_id = ${request.profileId}
                 AND context_group = $ctxGroup
                 AND context_started_at_unix_time >= $sinceUnixTime
                 ORDER BY context_started_at_unix_time ASC
