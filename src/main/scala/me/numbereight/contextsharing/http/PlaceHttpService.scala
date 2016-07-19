@@ -6,18 +6,14 @@ import akka.actor.ActorSystem
 import me.numbereight.contextsharing.foursquare.LatLong
 import me.numbereight.contextsharing.model.GetPlace
 import me.numbereight.contextsharing.model.Response
-import me.numbereight.contextsharing.model.SubmitUserInfoRequest
-import org.json4s.jackson.Serialization
 import spray.http.StatusCodes
 import spray.routing.Route
 
-import scala.util.Failure
-import scala.util.Success
 import scala.util.Try
 
 trait PlaceHttpService extends BaseHttpService {
 
-  val routes = getPlace ~ postUserInfo()
+  val routes = getPlace
 
   def getPlace: Route = get {
     pathPrefix(ApiVersion) {
@@ -32,28 +28,6 @@ trait PlaceHttpService extends BaseHttpService {
               sendResponse(sprayCtx, StatusCodes.BadRequest, Response(s"${t.getMessage}"))
           }
         }
-      }
-    }
-  }
-
-
-  def postUserInfo(): Route = post {
-    pathPrefix(ApiVersion) {
-      path("users") { sprayCtx =>
-        val req = Serialization.read[SubmitUserInfoRequest](sprayCtx.request.entity.asString)
-        if (!req.timezone.startsWith("UTC")) {
-          sendResponse(sprayCtx, StatusCodes.BadRequest, Response("Wrong timezone format. Examples: UTC+0, UTC-5, UTC+6.5'"))
-        }
-        val timezoneStr = req.timezone.replaceFirst("UTC", "")
-        Try(timezoneStr.toDouble) match {
-          case Success(timezone) =>
-            println(timezone)
-            println(timezone * 3600000)
-            sendResponse(sprayCtx, StatusCodes.OK, Response(s"Timezone ${req.timezone} successfully stored"))
-          case Failure(_) =>
-            sendResponse(sprayCtx, StatusCodes.BadRequest, Response("Wrong timezone format. Examples: UTC+0, UTC-5, UTC+6.5'"))
-        }
-
       }
     }
   }

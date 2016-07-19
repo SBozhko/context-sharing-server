@@ -10,15 +10,18 @@ import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
 import me.numbereight.contextsharing.actor.PlaceActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
+import me.numbereight.contextsharing.actor.UserProfileActor
 import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
 import me.numbereight.contextsharing.db.PostgresPlaceHistoryClient
+import me.numbereight.contextsharing.db.PostgresUserProfileClient
 import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
 import me.numbereight.contextsharing.http.PlaceHttpService
+import me.numbereight.contextsharing.http.UserProfileHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
 import org.slf4j.LoggerFactory
 import spray.can.Http
@@ -37,6 +40,7 @@ object Bootstrap {
     PostgresConnector.initDb(pgPoolName)
     val pgContextClient = new PostgresContextHistoryClient(pgPoolName)
     val pgPlaceClient = new PostgresPlaceHistoryClient(pgPoolName)
+    val pgUserProfileClient = new PostgresUserProfileClient(pgPoolName)
 
     implicit val system = ActorSystem("contextSharing")
 
@@ -58,12 +62,16 @@ object Bootstrap {
     val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient(), pgPlaceClient))
     val placeHttpService = PlaceHttpService(system, placeActor)
 
+    val userProfileActor = system.actorOf(UserProfileActor.props(pgUserProfileClient))
+    val userProfileHttpService = UserProfileHttpService(system, userProfileActor)
+
     val restEndpointActor = system.actorOf(
       RestEndpointActor.props(
         applicationInfoHttpService,
         ctxStorageHttpService,
         userStatsHttpService,
-        placeHttpService
+        placeHttpService,
+        userProfileHttpService
       ),
       RestEndpointActor.Name)
 
