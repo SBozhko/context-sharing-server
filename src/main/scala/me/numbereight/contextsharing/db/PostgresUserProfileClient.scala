@@ -19,12 +19,29 @@ class PostgresUserProfileClient(cpName: String) {
                 ${userInfo.advertisingId},
                 ${userInfo.timezoneOffsetMins}
                 )
-        """
+          """
         Option(insert.updateAndReturnGeneratedKey().apply())
       }
     } catch {
       case e: Exception =>
         log.error(s"Unable to store user into $userInfo", e)
+        None
+    }
+  }
+
+  def getUserProfileId(advertisingId: String): Option[Long] = {
+    try {
+      NamedDB(cpName) localTx { implicit session =>
+        val select =
+          sql"""
+                SELECT id FROM user_profiles
+                WHERE advertising_id = $advertisingId
+          """
+        select.map(rs => rs.long("advertising_id")).single().apply()
+      }
+    } catch {
+      case e: Exception =>
+        log.error(s"Unable to get user profile id by advertising id $advertisingId", e)
         None
     }
   }
@@ -36,7 +53,7 @@ class PostgresUserProfileClient(cpName: String) {
           sql"""
                 SELECT timezone_offset_minutes FROM user_profiles
                 WHERE user_id = $userId AND vendor_id = $vendorId
-            """
+           """
         select.map(rs => rs.int("timezone_offset_minutes")).single().apply()
       }
     } catch {

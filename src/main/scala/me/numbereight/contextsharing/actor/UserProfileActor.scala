@@ -14,13 +14,18 @@ class UserProfileActor(client: PostgresUserProfileClient) extends BaseHttpServic
 
   override def receive: Actor.Receive = {
     case msg: SubmitUserProfile =>
-      client.saveUserProfile(msg.request) match {
-        case Some(userId) =>
-          log.debug(s"Stored user profile: ${msg.request}")
-          sendResponse(msg.sprayCtx, StatusCodes.OK, UserProfileResponse(userId))
+      client.getUserProfileId(msg.request.advertisingId) match {
+        case Some(profileId) =>
+          sendResponse(msg.sprayCtx, StatusCodes.OK, UserProfileResponse(profileId)) // TODO: Update timezone, userId is needed in background
         case None =>
-          log.debug(s"Unable to store user data: ${msg.request}")
-          sendResponse(msg.sprayCtx, StatusCodes.InternalServerError, Response("Unable to store user data. Repeat the request"))
+          client.saveUserProfile(msg.request) match {
+            case Some(profileId) =>
+              log.debug(s"Stored user profile: ${msg.request}")
+              sendResponse(msg.sprayCtx, StatusCodes.OK, UserProfileResponse(profileId))
+            case None =>
+              log.warning(s"Unable to store user data: ${msg.request}")
+              sendResponse(msg.sprayCtx, StatusCodes.InternalServerError, Response("Unable to store user data. Repeat the request"))
+          }
       }
     case something: Any =>
       handleUnknownMsg(something)

@@ -41,7 +41,7 @@ object PostgresConnector {
       }
     } catch {
       case e: Exception =>
-        log.error("Unable to create table", e)
+        log.error("Unable to check if DB is alive", e)
         false
     }
   }
@@ -74,12 +74,14 @@ object PostgresConnector {
                 vendor_id varchar(50),
                 advertising_id varchar(50),
                 timezone_offset_minutes smallint
-              )
+              );
+              CREATE UNIQUE INDEX IF NOT EXISTS user_profiles_unique_advertising_id
+              ON user_profiles (advertising_id)
           """.execute.apply()
       }
     } catch {
       case e: Exception =>
-        log.error("Unable to create table", e)
+        log.error("Unable to create tables", e)
     }
   }
 
