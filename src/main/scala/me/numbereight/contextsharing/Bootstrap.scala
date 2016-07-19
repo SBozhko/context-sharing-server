@@ -56,7 +56,7 @@ object Bootstrap {
     val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgContextClient))
     val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
 
-    val userStatsActor = system.actorOf(UserStatsActor.props(pgContextClient))
+    val userStatsActor = system.actorOf(UserStatsActor.props(pgContextClient, pgUserProfileClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
 
     val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient(), pgPlaceClient))

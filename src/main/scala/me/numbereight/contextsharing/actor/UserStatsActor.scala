@@ -55,8 +55,8 @@ object UserStatsActor {
 
   val UserStatsMap = ContextNames.SampleUserStats.map(item => item.ctxGroup -> item.values).toMap
 
-  def props(client: PostgresContextHistoryClient): Props = {
-    Props.create(classOf[UserStatsActor], client)
+  def props(historyClient: PostgresContextHistoryClient, profileClient: PostgresUserProfileClient): Props = {
+    Props.create(classOf[UserStatsActor], historyClient, profileClient)
   }
 
 }
