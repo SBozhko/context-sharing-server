@@ -21,16 +21,16 @@ class UserStatsActor(
   historyClient: PostgresContextHistoryClient,
   profileClient: PostgresUserProfileClient) extends BaseHttpServiceActor {
 
-  val timezones = mutable.Map[(String, String), Int]()
+  val timezones = mutable.Map[Long, Int]()
 
   override def receive: Actor.Receive = {
     case msg: GetUserStatsActorRequest =>
-      val timezoneInMins = timezones.get((msg.request.userId, msg.request.vendorId)) match {
+      val timezoneInMins = timezones.get(msg.request.profileId) match {
         case Some(tz) => tz
         case None =>
-          profileClient.getTimezoneOffset(msg.request.userId, msg.request.vendorId) match {
+          profileClient.getTimezoneOffset(msg.request.profileId) match {
             case Some(tz) =>
-              timezones.put((msg.request.userId, msg.request.vendorId), tz)
+              timezones.put(msg.request.profileId, tz)
               tz
             case None =>
               log.warning(s"Unable to find timezone for stats: ${msg.request}. Applying UTC timezone.")

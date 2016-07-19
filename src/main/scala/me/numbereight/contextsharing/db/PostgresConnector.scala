@@ -59,7 +59,7 @@ object PostgresConnector {
               );
               CREATE TABLE IF NOT EXISTS place_history (
                 id serial primary key,
-                user_profile_id_id integer,
+                vendor_id varchar(50),
                 latitude double precision,
                 longitude double precision,
                 place varchar(20),

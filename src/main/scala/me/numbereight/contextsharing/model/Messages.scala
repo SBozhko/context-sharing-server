@@ -61,9 +61,9 @@ object StatsPeriod {
   def valid(period: String): Boolean = All.contains(period)
 }
 
-case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, profileId: Option[Long])
+case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, vendorId: Option[String])
 case class PlaceResponse(place: String)
-case class PlaceEvent(latLong: LatLong, profileId: Long, place: String)
+case class PlaceEvent(latLong: LatLong, vendorId: String, place: String)
 
 case class SubmitUserInfoRequest(userId: String, vendorId: String, advertisingId: String, timezone: String)
 case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId: String, timezoneOffsetMins: Int)
