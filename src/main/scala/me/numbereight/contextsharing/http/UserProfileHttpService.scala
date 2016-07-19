@@ -24,16 +24,16 @@ trait UserProfileHttpService extends BaseHttpService {
       path("users") { sprayCtx =>
         val req = Serialization.read[SubmitUserInfoRequest](sprayCtx.request.entity.asString)
         if (!req.timezone.startsWith("UTC")) {
-          sendResponse(sprayCtx, StatusCodes.BadRequest, Response("Wrong timezone format. Examples: UTC+0, UTC-5, UTC+6.5'"))
+          sendResponse(sprayCtx, StatusCodes.BadRequest, Response("Wrong timezone format. Examples: UTC+0000, UTC-0500, UTC+0650"))
         }
         val timezoneStr = req.timezone.replaceFirst("UTC", "")
-        Try(timezoneStr.toDouble) match {
+        Try(timezoneStr.toDouble / 100) match {
           case Success(timezone) =>
             val userInfoMessage = SubmitUserInfoMessage(req.userId, req.vendorId, req.advertisingId, (timezone * 60).toInt)
             val message = SubmitUserProfile(sprayCtx, userInfoMessage)
             userProfileActor.tell(message, ActorRef.noSender)
           case Failure(_) =>
-            sendResponse(sprayCtx, StatusCodes.BadRequest, Response("Wrong timezone format. Examples: UTC+0, UTC-5, UTC+6.5'"))
+            sendResponse(sprayCtx, StatusCodes.BadRequest, Response("Wrong timezone format. Examples: UTC+0000, UTC-0500, UTC+0650"))
         }
 
       }
