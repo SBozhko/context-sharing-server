@@ -25,8 +25,8 @@ class PlaceActor(foursquareClient: FoursquareClient, pgClient: PostgresPlaceHist
         distances.minBy(_._2)._1
       }
 
-      if (msg.vendorId.isDefined) {
-        pgClient.saveContextData(PlaceEvent(msg.latLong, msg.vendorId.get, minDistancePlace)) // TODO: add retry
+      if (msg.profileId.isDefined) {
+        pgClient.saveContextData(PlaceEvent(msg.latLong, msg.profileId.get, minDistancePlace)) // TODO: add retry
       }
       sendResponse(msg.sprayCtx, StatusCodes.OK, PlaceResponse(minDistancePlace))
     case something: Any =>

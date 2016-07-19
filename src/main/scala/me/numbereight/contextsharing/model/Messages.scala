@@ -41,16 +41,14 @@ object VersionResponse {
 
 
 case class SubmitContextRequest(
-  userId: String,
-  vendorId: String,
-  idfa: Option[String],
+  profileId: Long,
   contextData: List[ContextData]
 )
 
 case class SubmitContextActorRequest(sprayCtx: RequestContext, request: SubmitContextRequest)
 case class ContextData(ctxGroup: String, ctxName: String)
 
-case class GetUserStatsRequest(userId: String, vendorId: String, ctxGroups: List[String], period: String)
+case class GetUserStatsRequest(profileId: Long, ctxGroups: List[String], period: String)
 case class GetUserStatsActorRequest(sprayCtx: RequestContext, request: GetUserStatsRequest)
 case class GetUserStatsResponse(userStats: List[CtxStats])
 case class CtxStats(ctxGroup: String, values: List[CtxPercentage])
@@ -63,9 +61,9 @@ object StatsPeriod {
   def valid(period: String): Boolean = All.contains(period)
 }
 
-case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, vendorId: Option[String])
+case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, profileId: Option[Long])
 case class PlaceResponse(place: String)
-case class PlaceEvent(latLong: LatLong, vendorId: String, place: String)
+case class PlaceEvent(latLong: LatLong, profileId: Long, place: String)
 
 case class SubmitUserInfoRequest(userId: String, vendorId: String, advertisingId: String, timezone: String)
 case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId: String, timezoneOffsetMins: Int)

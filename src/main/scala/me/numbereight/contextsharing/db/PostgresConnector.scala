@@ -52,17 +52,14 @@ object PostgresConnector {
         sql"""
               CREATE TABLE IF NOT EXISTS context_history (
                 id serial primary key,
-                user_id varchar(50),
-                advertising_id varchar(50),
-                vendor_id varchar(50),
+                user_profile_id_id integer,
                 context_group varchar(20),
                 context_name varchar(20),
                 context_started_at_unix_time bigint
               );
               CREATE TABLE IF NOT EXISTS place_history (
                 id serial primary key,
-                user_id varchar(50),
-                vendor_id varchar(50),
+                user_profile_id_id integer,
                 latitude double precision,
                 longitude double precision,
                 place varchar(20),
@@ -72,11 +69,9 @@ object PostgresConnector {
                 id serial primary key,
                 user_id varchar(50),
                 vendor_id varchar(50),
-                advertising_id varchar(50),
+                advertising_id varchar(50) UNIQUE,
                 timezone_offset_minutes smallint
-              );
-              CREATE UNIQUE INDEX IF NOT EXISTS user_profiles_unique_advertising_id
-              ON user_profiles (advertising_id)
+              )
           """.execute.apply()
       }
     } catch {

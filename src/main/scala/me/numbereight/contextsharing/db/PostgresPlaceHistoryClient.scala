@@ -16,14 +16,14 @@ class PostgresPlaceHistoryClient(cpName: String) {
         val date = new DateTime().getMillis
         val insert =
           sql"""
-                INSERT INTO place_history (user_id, vendor_id, latitude, longitude, place, check_in_at_unix_time) VALUES(
-                ${placeEvent.vendorId},
-                ${placeEvent.vendorId},
+                INSERT INTO place_history (profile_id, latitude, longitude, place, check_in_at_unix_time)
+                VALUES(
+                ${placeEvent.profileId},
                 ${placeEvent.latLong.lat},
                 ${placeEvent.latLong.lon},
                 ${placeEvent.place},
                 $date)
-        """
+            """
         insert.updateAndReturnGeneratedKey().apply()
       }
     } catch {

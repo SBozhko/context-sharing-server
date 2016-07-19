@@ -18,10 +18,10 @@ trait PlaceHttpService extends BaseHttpService {
   def getPlace: Route = get {
     pathPrefix(ApiVersion) {
       path("places") {
-        parameters('ll, 'vendor_id.?) { (latLong, vendorId) => sprayCtx =>
+        parameters('ll, 'profile_id.?.as[Option[Long]]) { (latLong, profileId) => sprayCtx =>
           Try {
             val latLon = LatLong(latLong)
-            val req = GetPlace(sprayCtx, latLon, vendorId)
+            val req = GetPlace(sprayCtx, latLon, profileId)
             placeActor.tell(req, ActorRef.noSender)
           }.recover {
             case t: Throwable =>

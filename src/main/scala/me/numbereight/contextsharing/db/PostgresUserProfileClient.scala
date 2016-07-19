@@ -17,9 +17,8 @@ class PostgresUserProfileClient(cpName: String) {
                 ${userInfo.userId},
                 ${userInfo.vendorId},
                 ${userInfo.advertisingId},
-                ${userInfo.timezoneOffsetMins}
-                )
-          """
+                ${userInfo.timezoneOffsetMins})
+            """
         Option(insert.updateAndReturnGeneratedKey().apply())
       }
     } catch {
@@ -36,7 +35,7 @@ class PostgresUserProfileClient(cpName: String) {
           sql"""
                 SELECT id FROM user_profiles
                 WHERE advertising_id = $advertisingId
-          """
+            """
         select.map(rs => rs.long("advertising_id")).single().apply()
       }
     } catch {
@@ -53,7 +52,7 @@ class PostgresUserProfileClient(cpName: String) {
           sql"""
                 SELECT timezone_offset_minutes FROM user_profiles
                 WHERE user_id = $userId AND vendor_id = $vendorId
-           """
+            """
         select.map(rs => rs.int("timezone_offset_minutes")).single().apply()
       }
     } catch {
