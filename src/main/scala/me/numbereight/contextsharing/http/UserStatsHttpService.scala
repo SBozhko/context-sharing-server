@@ -6,6 +6,7 @@ import akka.actor.ActorSystem
 import me.numbereight.contextsharing.model.ContextGroups
 import me.numbereight.contextsharing.model.GetUserStatsActorRequest
 import me.numbereight.contextsharing.model.GetUserStatsRequest
+import me.numbereight.contextsharing.model.StatsPeriod
 import spray.http.StatusCodes
 import spray.routing.Route
 
@@ -18,15 +19,20 @@ trait UserStatsHttpService extends BaseHttpService {
   def getStats: Route = get {
     pathPrefix(ApiVersion) {
       path("contexts" / Segment / Segment) { (userId, vendorId) =>
-        parameters('ctx.?) { contexts => sprayCtx =>
+        parameters('ctx.?, 'period.?("day")) { (contexts, period) => sprayCtx =>
           Try {
             val ctxGroups = contexts match {
               case Some(ctxAsString) => ctxAsString.split(",").toList
               case None => ContextGroups.All.toList
             }
+
+            if (!StatsPeriod.valid(period)) {
+              throw new IllegalArgumentException("Illegal period name. Should be one of: day, week, month.")
+            }
+
             ctxGroups.forall(item => ContextGroups.valid(item)) match {
               case true =>
-                val req = GetUserStatsRequest(userId, vendorId, ctxGroups)
+                val req = GetUserStatsRequest(userId, vendorId, ctxGroups, period)
                 userStatsActor.tell(GetUserStatsActorRequest(sprayCtx, req), ActorRef.noSender)
               case false =>
                 val errMsg = s"Context types should be comma separated, like: ${ContextGroups.All.mkString(",")}"
