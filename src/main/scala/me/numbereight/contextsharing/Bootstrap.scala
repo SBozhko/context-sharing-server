@@ -14,6 +14,7 @@ import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
+import me.numbereight.contextsharing.db.PostgresPlaceHistoryClient
 import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
@@ -33,8 +34,9 @@ object Bootstrap {
 
     val pgPoolName = "postgres"
     PostgresConnector.createConnectionPool(pgPoolName, runtimeConfig.PostgresConfig)
-    val pgClient = new PostgresContextHistoryClient(pgPoolName)
-    pgClient.initDb()
+    PostgresConnector.initDb(pgPoolName)
+    val pgContextClient = new PostgresContextHistoryClient(pgPoolName)
+    val pgPlaceClient = new PostgresPlaceHistoryClient(pgPoolName)
 
     implicit val system = ActorSystem("contextSharing")
 
@@ -44,16 +46,16 @@ object Bootstrap {
     system.eventStream.subscribe(deadLetterListener, classOf[DeadLetter])
 
 
-    val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgClient))
+    val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgPoolName))
     val applicationInfoHttpService = ApplicationInfoHttpService(system, isAliveActor)
 
-    val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgClient))
+    val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgContextClient))
     val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
 
-    val userStatsActor = system.actorOf(UserStatsActor.props(pgClient))
+    val userStatsActor = system.actorOf(UserStatsActor.props(pgContextClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
 
-    val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient()))
+    val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient(), pgPlaceClient))
     val placeHttpService = PlaceHttpService(system, placeActor)
 
     val restEndpointActor = system.actorOf(

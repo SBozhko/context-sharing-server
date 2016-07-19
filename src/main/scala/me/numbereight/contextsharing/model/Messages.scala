@@ -58,5 +58,6 @@ case class CtxPercentage(ctxName: String, percentage: Double)
 
 case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, vendorId: Option[String])
 case class PlaceResponse(place: String)
+case class PlaceEvent(latLong: LatLong, vendorId: String, place: String)
 
 case class SubmitUserInfoRequest(userId: String, vendorId: String, timezone: String)

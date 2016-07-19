@@ -2,13 +2,15 @@ package me.numbereight.contextsharing.actor
 
 import akka.actor.Actor
 import akka.actor.Props
+import me.numbereight.contextsharing.db.PostgresPlaceHistoryClient
 import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.model.ContextNames.Place
 import me.numbereight.contextsharing.model.GetPlace
+import me.numbereight.contextsharing.model.PlaceEvent
 import me.numbereight.contextsharing.model.PlaceResponse
 import spray.http.StatusCodes
 
-class PlaceActor(foursquareClient: FoursquareClient) extends BaseHttpServiceActor {
+class PlaceActor(foursquareClient: FoursquareClient, pgClient: PostgresPlaceHistoryClient) extends BaseHttpServiceActor {
 
   override def receive: Actor.Receive = {
     case msg: GetPlace =>
@@ -22,6 +24,10 @@ class PlaceActor(foursquareClient: FoursquareClient) extends BaseHttpServiceActo
       } else {
         distances.minBy(_._2)._1
       }
+
+      if (msg.vendorId.isDefined) {
+        pgClient.saveContextData(PlaceEvent(msg.latLong, msg.vendorId.get, minDistancePlace)) // TODO: add retry
+      }
       sendResponse(msg.sprayCtx, StatusCodes.OK, PlaceResponse(minDistancePlace))
     case something: Any =>
       handleUnknownMsg(something)
@@ -33,8 +39,8 @@ object PlaceActor {
 
   val Name = "placeActor"
 
-  def props(foursquareClient: FoursquareClient): Props = {
-    Props.create(classOf[PlaceActor], foursquareClient)
+  def props(foursquareClient: FoursquareClient, pgPlaceClient: PostgresPlaceHistoryClient): Props = {
+    Props.create(classOf[PlaceActor], foursquareClient, pgPlaceClient)
   }
 
 }
