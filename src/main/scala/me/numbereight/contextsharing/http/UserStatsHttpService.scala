@@ -18,7 +18,7 @@ trait UserStatsHttpService extends BaseHttpService {
 
   def getStats: Route = get {
     pathPrefix(ApiVersion) {
-      path("contexts" / Segment / Segment) { (userId, vendorId) =>
+      path("contexts" / LongNumber) { profileId =>
         parameters('ctx.?, 'period.?("day")) { (contexts, period) => sprayCtx =>
           Try {
             val ctxGroups = contexts match {
@@ -32,7 +32,7 @@ trait UserStatsHttpService extends BaseHttpService {
 
             ctxGroups.forall(item => ContextGroups.valid(item)) match {
               case true =>
-                val req = GetUserStatsRequest(userId, vendorId, ctxGroups, period)
+                val req = GetUserStatsRequest(profileId, ctxGroups, period)
                 userStatsActor.tell(GetUserStatsActorRequest(sprayCtx, req), ActorRef.noSender)
               case false =>
                 val errMsg = s"Context types should be comma separated, like: ${ContextGroups.All.mkString(",")}"

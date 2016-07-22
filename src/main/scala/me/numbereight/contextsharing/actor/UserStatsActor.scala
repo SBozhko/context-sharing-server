@@ -21,16 +21,16 @@ class UserStatsActor(
   historyClient: PostgresContextHistoryClient,
   profileClient: PostgresUserProfileClient) extends BaseHttpServiceActor {
 
-  val timezones = mutable.Map[(String, String), Int]()
+  val timezones = mutable.Map[Long, Int]() // TODO: user guava cache
 
   override def receive: Actor.Receive = {
     case msg: GetUserStatsActorRequest =>
-      val timezoneInMins = timezones.get((msg.request.userId, msg.request.vendorId)) match {
+      val timezoneInMins = timezones.get(msg.request.profileId) match {
         case Some(tz) => tz
         case None =>
-          profileClient.getTimezoneOffset(msg.request.userId, msg.request.vendorId) match {
+          profileClient.getTimezoneOffset(msg.request.profileId) match {
             case Some(tz) =>
-              timezones.put((msg.request.userId, msg.request.vendorId), tz)
+              timezones.put(msg.request.profileId, tz)
               tz
             case None =>
               log.warning(s"Unable to find timezone for stats: ${msg.request}. Applying UTC timezone.")
@@ -47,17 +47,16 @@ class UserStatsActor(
   }
 
   def getTimestamp(period: String, timezoneMins: Int): Long = {
-    val currTimestamp = new DateTime().getMillis
-    val midnightTimestampInUtc = period match {
+    val tz = DateTimeZone.forOffsetMillis(timezoneMins * 60 * 1000)
+    val fromTimestamp = period match {
       case StatsPeriod.Day =>
-        new DateTime().withZone(DateTimeZone.UTC).withTimeAtStartOfDay().getMillis
+        new DateTime().withZone(tz).withTimeAtStartOfDay().getMillis
       case StatsPeriod.Week =>
-        new LocalDate().dayOfWeek().withMinimumValue().toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis
+        new LocalDate(tz).dayOfWeek().withMinimumValue().toDateTimeAtStartOfDay().getMillis
       case StatsPeriod.Month =>
-        new LocalDate().dayOfMonth().withMinimumValue().toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis
+        new LocalDate(tz).dayOfMonth().withMinimumValue().toDateTimeAtStartOfDay().getMillis
     }
-    val diffWithTimezone = currTimestamp - midnightTimestampInUtc + timezoneMins * 60000
-    currTimestamp - diffWithTimezone
+    fromTimestamp
   }
 
 }

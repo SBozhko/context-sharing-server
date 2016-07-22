@@ -24,15 +24,15 @@ class PostgresContextHistoryClient(cpName: String) {
         request.contextData.foreach { ctxPair =>
           val insert =
             sql"""
-                INSERT INTO context_history (user_id, advertising_id, vendor_id, context_group, context_name, context_started_at_unix_time) VALUES
-                (${request.userId}, ${request.idfa}, ${request.vendorId}, ${ctxPair.ctxGroup}, ${ctxPair.ctxName}, $date)
-        """
+                INSERT INTO context_history (user_profile_id, context_group, context_name, context_started_at_unix_time)
+                VALUES (${request.profileId}, ${ctxPair.ctxGroup}, ${ctxPair.ctxName}, $date)
+            """
           insert.updateAndReturnGeneratedKey().apply()
         }
       }
     } catch {
       case e: Exception =>
-        log.error("Updable to store context data", e)
+        log.error("Unable to store context data", e)
     }
   }
 
@@ -43,8 +43,7 @@ class PostgresContextHistoryClient(cpName: String) {
           val select =
             sql"""
                 SELECT context_name, context_started_at_unix_time FROM context_history
-                WHERE user_id = ${request.userId}
-                AND vendor_id = ${request.vendorId}
+                WHERE user_profile_id = ${request.profileId}
                 AND context_group = $ctxGroup
                 AND context_started_at_unix_time >= $sinceUnixTime
                 ORDER BY context_started_at_unix_time ASC

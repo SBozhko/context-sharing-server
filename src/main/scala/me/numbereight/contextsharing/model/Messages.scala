@@ -41,16 +41,14 @@ object VersionResponse {
 
 
 case class SubmitContextRequest(
-  userId: String,
-  vendorId: String,
-  idfa: Option[String],
+  profileId: Long,
   contextData: List[ContextData]
 )
 
 case class SubmitContextActorRequest(sprayCtx: RequestContext, request: SubmitContextRequest)
 case class ContextData(ctxGroup: String, ctxName: String)
 
-case class GetUserStatsRequest(userId: String, vendorId: String, ctxGroups: List[String], period: String)
+case class GetUserStatsRequest(profileId: Long, ctxGroups: List[String], period: String)
 case class GetUserStatsActorRequest(sprayCtx: RequestContext, request: GetUserStatsRequest)
 case class GetUserStatsResponse(userStats: List[CtxStats])
 case class CtxStats(ctxGroup: String, values: List[CtxPercentage])

@@ -17,9 +17,8 @@ class PostgresUserProfileClient(cpName: String) {
                 ${userInfo.userId},
                 ${userInfo.vendorId},
                 ${userInfo.advertisingId},
-                ${userInfo.timezoneOffsetMins}
-                )
-          """
+                ${userInfo.timezoneOffsetMins})
+            """
         Option(insert.updateAndReturnGeneratedKey().apply())
       }
     } catch {
@@ -36,7 +35,7 @@ class PostgresUserProfileClient(cpName: String) {
           sql"""
                 SELECT id FROM user_profiles
                 WHERE advertising_id = $advertisingId
-          """
+            """
         select.map(rs => rs.long("advertising_id")).single().apply()
       }
     } catch {
@@ -46,19 +45,19 @@ class PostgresUserProfileClient(cpName: String) {
     }
   }
 
-  def getTimezoneOffset(userId: String, vendorId: String): Option[Int] = {
+  def getTimezoneOffset(profileId: Long): Option[Int] = {
     try {
       NamedDB(cpName) localTx { implicit session =>
         val select =
           sql"""
                 SELECT timezone_offset_minutes FROM user_profiles
-                WHERE user_id = $userId AND vendor_id = $vendorId
-           """
+                WHERE id = $profileId
+            """
         select.map(rs => rs.int("timezone_offset_minutes")).single().apply()
       }
     } catch {
       case e: Exception =>
-        log.error(s"Unable to get timezone for user with userId=$userId, vendorId=$vendorId ", e)
+        log.error(s"Unable to get timezone for user with profileId=$profileId", e)
         None
     }
   }
