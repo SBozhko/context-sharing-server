@@ -36,7 +36,7 @@ class PostgresUserProfileClient(cpName: String) {
                 SELECT id FROM user_profiles
                 WHERE advertising_id = $advertisingId
             """
-        select.map(rs => rs.long("advertising_id")).single().apply()
+        select.map(rs => rs.long("id")).single().apply()
       }
     } catch {
       case e: Exception =>
