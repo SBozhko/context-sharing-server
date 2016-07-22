@@ -134,8 +134,8 @@ object FoursquareClient {
       "4bf58dd8d48988d198941735", // College Academic Building
       "4bf58dd8d48988d1a0941735").mkString(","), // College Classroom
     Place.Beach -> "4bf58dd8d48988d1e2941735,52e81612bcbc57f1066b7a0d", // Beach, Beach Bar
-    Place.ShopsAndServices -> "4d4b7105d754a06378d81259", // Shops & Services
-    Place.FoodRelated -> "4d4b7105d754a06374d81259" // Food (includes all types of restaurants)
+    Place.Shop -> "4d4b7105d754a06378d81259", // Shops & Services
+    Place.Restaurant -> "4d4b7105d754a06374d81259" // Food (includes all types of restaurants)
   )
 
 }

@@ -37,8 +37,8 @@ object ContextNames extends Contexts {
       CtxPercentage(Place.Library, 0.0f),
       CtxPercentage(Place.Gym, 15.0f),
       CtxPercentage(Place.Beach, 0.0f),
-      CtxPercentage(Place.ShopsAndServices, 5.0f),
-      CtxPercentage(Place.FoodRelated, 35.0f),
+      CtxPercentage(Place.Shop, 5.0f),
+      CtxPercentage(Place.Restaurant, 35.0f),
       CtxPercentage(Place.Other, 0.0f)
     )),
     CtxStats(ContextGroups.Situation, List(
@@ -187,11 +187,11 @@ object ContextNames extends Contexts {
     val Library = "Library"
     val Gym = "Gym"
     val Beach = "Beach"
-    val ShopsAndServices = "ShopsAndServices"
-    val FoodRelated = "FoodRelated"
+    val Shop = "Shop"
+    val Restaurant = "Restaurant"
     val Other = "Other"
-    override val All = Set(Home, Office, Library, Gym, Beach, ShopsAndServices, FoodRelated, Other)
-    val AllMeaningful = Set(Home, Office, Library, Gym, Beach, ShopsAndServices, FoodRelated)
+    override val All = Set(Home, Office, Library, Gym, Beach, Shop, Restaurant, Other)
+    val AllMeaningful = Set(Home, Office, Library, Gym, Beach, Shop, Restaurant)
   }
 
   object Situation extends Contexts {
