@@ -52,7 +52,7 @@ class UserStatsActor(
       case StatsPeriod.Day =>
         new DateTime().withZone(tz).withTimeAtStartOfDay().getMillis
       case StatsPeriod.Week =>
-        new LocalDate(tz).dayOfWeek().withMinimumValue().toDateTimeAtStartOfDay().getMillis
+        new DateTime().minusWeeks(1).getMillis
       case StatsPeriod.Month =>
         new LocalDate(tz).dayOfMonth().withMinimumValue().toDateTimeAtStartOfDay().getMillis
     }
