@@ -9,6 +9,7 @@ import me.numbereight.contextsharing.actor.DeadLetterListenerActor
 import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
 import me.numbereight.contextsharing.actor.PlaceActor
+import me.numbereight.contextsharing.actor.RecommendationsActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
 import me.numbereight.contextsharing.actor.UserProfileActor
 import me.numbereight.contextsharing.actor.UserStatsActor
@@ -21,6 +22,7 @@ import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
 import me.numbereight.contextsharing.http.PlaceHttpService
+import me.numbereight.contextsharing.http.RecommendationsHttpService
 import me.numbereight.contextsharing.http.UserProfileHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
 import org.slf4j.LoggerFactory
@@ -65,13 +67,18 @@ object Bootstrap {
     val userProfileActor = system.actorOf(UserProfileActor.props(pgUserProfileClient))
     val userProfileHttpService = UserProfileHttpService(system, userProfileActor)
 
+    val recommendationsActor = system.actorOf(RecommendationsActor.props())
+    val recommendationsHttpService = RecommendationsHttpService(system, recommendationsActor)
+
+
     val restEndpointActor = system.actorOf(
       RestEndpointActor.props(
         applicationInfoHttpService,
         ctxStorageHttpService,
         userStatsHttpService,
         placeHttpService,
-        userProfileHttpService
+        userProfileHttpService,
+        recommendationsHttpService
       ),
       RestEndpointActor.Name)
 
