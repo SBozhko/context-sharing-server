@@ -105,7 +105,7 @@ object FoursquareClient {
   val VenueEndpoint = "https://api.foursquare.com/v2/venues/search"
   val ClientSecret = "FMTHCUNEIHNIVZUOCWOZHZEFL33GII2NZNTV4Z3RLHZ23PTK"
   val ClientId = "NVLWVF0KX0EFP4CZLDCF3YLOBRY2L4VZXUGRUPBHW0ROT2YE"
-  val Radius = 30.toString
+  val Radius = 20.toString
   val Version = 20140503.toString
   val Locale = "en"
   val Limit = 1.toString
