@@ -18,16 +18,16 @@ class RecommendationsActor() extends BaseHttpServiceActor {
 
       val response = RecommendationsResponse(
         List(
-          OrderItem("musicItem", 1),
-          OrderItem("musicItem", 4),
-          OrderItem("videoItem", 1),
-          OrderItem("musicItem", 2),
-          OrderItem("musicItem", 5),
-          OrderItem("videoItem", 3),
-          OrderItem("musicItem", 3),
-          OrderItem("videoItem", 5),
-          OrderItem("videoItem", 4),
-          OrderItem("videoItem", 3)
+          OrderItem("musicItems", 1),
+          OrderItem("musicItems", 4),
+          OrderItem("videoItems", 1),
+          OrderItem("musicItems", 2),
+          OrderItem("musicItems", 5),
+          OrderItem("videoItems", 3),
+          OrderItem("musicItems", 3),
+          OrderItem("videoItems", 5),
+          OrderItem("videoItems", 4),
+          OrderItem("videoItems", 3)
         ),
         List(
           MusicItem(1, "Batracios - El Foforro", "https://soundcloud.com/user-277220310/el-foforro"),
