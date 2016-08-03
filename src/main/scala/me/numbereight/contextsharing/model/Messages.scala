@@ -74,6 +74,6 @@ case class RecommendationsResponse(
   order: List[OrderItem],
   musicItems: List[MusicItem],
   videoItems: List[VideoItem])
-case class MusicItem(id: Long, title: String, url: String)
-case class VideoItem(id: Long, title: String, url: String)
+case class MusicItem(id: Long, title: String, artist: String, url: String, duration: Int, artwork: String)
+case class VideoItem(id: Long, title: String, url: String, duration: Int, artwork: String)
 case class OrderItem(`type`: String, id: Long)
