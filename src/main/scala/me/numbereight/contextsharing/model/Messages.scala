@@ -70,6 +70,10 @@ case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId
 case class SubmitUserProfile(sprayCtx: RequestContext, request: SubmitUserInfoMessage)
 case class UserProfileResponse(profileId: Long)
 
-case class RecommendationsResponse(musicItems: List[RecommendationMusicItem], videoItems: List[RecommendationVideoItem])
-case class RecommendationMusicItem(id: Long, title: String, url: String)
-case class RecommendationVideoItem(id: Long, title: String, url: String)
+case class RecommendationsResponse(
+  order: List[OrderItem],
+  musicItems: List[MusicItem],
+  videoItems: List[VideoItem])
+case class MusicItem(id: Long, title: String, url: String)
+case class VideoItem(id: Long, title: String, url: String)
+case class OrderItem(`type`: String, id: Long)
