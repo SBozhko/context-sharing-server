@@ -1,5 +1,7 @@
 package me.numbereight.contextsharing.db
 
+import me.numbereight.contextsharing.model.ContextData
+import me.numbereight.contextsharing.model.ContextGroups
 import me.numbereight.contextsharing.model.CtxPercentage
 import me.numbereight.contextsharing.model.CtxStats
 import me.numbereight.contextsharing.model.GetUserStatsRequest
@@ -33,6 +35,36 @@ class PostgresContextHistoryClient(cpName: String) {
     } catch {
       case e: Exception =>
         log.error("Unable to store context data", e)
+    }
+  }
+
+  def getLastContextData(profileId: Long): Option[ContextData] = {
+    try {
+      NamedDB(cpName) localTx { implicit session =>
+
+        val select =
+          sql"""
+                SELECT id, context_name FROM context_history
+                WHERE user_profile_id = $profileId
+                AND context_group = 'Situation'
+                ORDER BY context_started_at_unix_time DESC
+                LIMIT 1;
+            """
+        val result: Option[(String)] = select.map { rs =>
+          rs.string("context_name")
+        }.single().apply()
+
+        result match {
+          case Some(value) => Some(ContextData(ContextGroups.Situation, value))
+          case _ =>
+            log.warn(s"No context data for user with profileId: $profileId")
+            None
+        }
+      }
+    } catch {
+      case e: Exception =>
+        log.error(s"Unable to get context data for user with profileId: $profileId", e)
+        None
     }
   }
 
