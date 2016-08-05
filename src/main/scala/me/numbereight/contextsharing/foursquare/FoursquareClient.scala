@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory
 
 import scala.util.Try
 
-case class LatLong(lat: Double, lon: Double) {
-  def foursquareString: String = s"$lat,$lon"
+case class LatLong(lat: Double, long: Double) {
+  def foursquareString: String = s"$lat,$long"
 }
 
 object LatLong {

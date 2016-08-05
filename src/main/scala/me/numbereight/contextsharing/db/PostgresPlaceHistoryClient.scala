@@ -19,7 +19,7 @@ class PostgresPlaceHistoryClient(cpName: String) {
                 INSERT INTO place_history (vendor_id, latitude, longitude, place, check_in_at_unix_time) VALUES(
                 ${placeEvent.vendorId},
                 ${placeEvent.latLong.lat},
-                ${placeEvent.latLong.lon},
+                ${placeEvent.latLong.long},
                 ${placeEvent.place},
                 $date)
             """

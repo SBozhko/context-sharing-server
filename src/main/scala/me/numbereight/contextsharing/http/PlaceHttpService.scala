@@ -3,9 +3,12 @@ package me.numbereight.contextsharing.http
 import akka.actor.ActorRef
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSystem
+import me.numbereight.contextsharing.actor.PlaceActor.SetPlace
 import me.numbereight.contextsharing.foursquare.LatLong
 import me.numbereight.contextsharing.model.GetPlace
 import me.numbereight.contextsharing.model.Response
+import me.numbereight.contextsharing.model.SubmitPlaceRequest
+import org.json4s.jackson.Serialization
 import spray.http.StatusCodes
 import spray.routing.Route
 
@@ -13,7 +16,7 @@ import scala.util.Try
 
 trait PlaceHttpService extends BaseHttpService {
 
-  val routes = getPlace
+  val routes = getPlace ~ setPlace()
 
   def getPlace: Route = get {
     pathPrefix(ApiVersion) {
@@ -27,6 +30,22 @@ trait PlaceHttpService extends BaseHttpService {
             case t: Throwable =>
               sendResponse(sprayCtx, StatusCodes.BadRequest, Response(s"${t.getMessage}"))
           }
+        }
+      }
+    }
+  }
+
+  def setPlace(): Route = post {
+    pathPrefix(ApiVersion) {
+      path("places") { sprayCtx =>
+        Try {
+          val req = Serialization.read[SubmitPlaceRequest](sprayCtx.request.entity.asString)
+          val latLong = LatLong(req.lat, req.long)
+          val setPlaceMsg = SetPlace(sprayCtx, req.placeName, latLong)
+          placeActor.tell(setPlaceMsg, ActorRef.noSender)
+        }.recover {
+          case t: Throwable =>
+            sendResponse(sprayCtx, StatusCodes.BadRequest, Response(s"${t.getMessage}"))
         }
       }
     }
