@@ -63,7 +63,7 @@ class UserStatsActor(
 
 object UserStatsActor {
 
-  val Name = "contextStorageActor"
+  val Name = "userStatsActor"
 
   val UserStatsMap = ContextNames.SampleUserStats.map(item => item.ctxGroup -> item.values).toMap
 

@@ -20,7 +20,7 @@ class DeadLetterListenerActor extends Actor with ActorLogging {
 }
 
 object DeadLetterListenerActor {
-  val Name: String = "deadLetterListenerActor"
+  val Name = "deadLetterListenerActor"
 
   def props(): Props = {
     Props.create(classOf[DeadLetterListenerActor])

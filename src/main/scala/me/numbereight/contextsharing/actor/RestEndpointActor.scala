@@ -4,6 +4,7 @@ import akka.actor.Props
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
 import me.numbereight.contextsharing.http.PlaceHttpService
+import me.numbereight.contextsharing.http.RecommendationsHttpService
 import me.numbereight.contextsharing.http.UserProfileHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
 
@@ -12,7 +13,8 @@ class RestEndpointActor(
   ctxStorageHttpService: ContextStorageHttpService,
   userStatsHttpService: UserStatsHttpService,
   placeHttpService: PlaceHttpService,
-  userProfileHttpService: UserProfileHttpService)
+  userProfileHttpService: UserProfileHttpService,
+  recommendationsHttpService: RecommendationsHttpService)
   extends BaseHttpServiceActor {
 
   def receive = runRoute(
@@ -20,7 +22,8 @@ class RestEndpointActor(
     ctxStorageHttpService.routes ~
     userStatsHttpService.routes ~
     placeHttpService.routes ~
-    userProfileHttpService.routes)
+    userProfileHttpService.routes ~
+    recommendationsHttpService.routes)
 }
 
 object RestEndpointActor {
@@ -32,7 +35,8 @@ object RestEndpointActor {
     ctxStorageHttpService: ContextStorageHttpService,
     userStatsHttpService: UserStatsHttpService,
     placeHttpService: PlaceHttpService,
-    userProfileHttpService: UserProfileHttpService): Props = {
+    userProfileHttpService: UserProfileHttpService,
+    recommendationsHttpService: RecommendationsHttpService): Props = {
 
     Props.create(
       classOf[RestEndpointActor],
@@ -40,7 +44,8 @@ object RestEndpointActor {
       ctxStorageHttpService,
       userStatsHttpService,
       placeHttpService,
-      userProfileHttpService
+      userProfileHttpService,
+      recommendationsHttpService
     )
   }
 }

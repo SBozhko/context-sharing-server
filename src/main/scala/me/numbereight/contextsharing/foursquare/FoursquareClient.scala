@@ -1,10 +1,9 @@
 package me.numbereight.contextsharing.foursquare
 
 import me.numbereight.contextsharing.model.ContextNames.Place
+import me.numbereight.contextsharing.util.HttpClientUtils
 import org.apache.commons.io.IOUtils
-import org.apache.http.NameValuePair
 import org.apache.http.client.fluent.Request
-import org.apache.http.message.BasicNameValuePair
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST.JArray
 import org.json4s.JsonAST.JInt
@@ -42,7 +41,7 @@ class FoursquareClient {
           "v" -> FoursquareClient.Version,
           "client_id" -> FoursquareClient.ClientId,
           "radius" -> FoursquareClient.Radius)
-        val queryString = queryParams2String(queryParams)
+        val queryString = HttpClientUtils.queryParams2String(queryParams)
 
         val httpResponse = Request.Get(s"${FoursquareClient.VenueEndpoint}?$queryString")
           .execute()
@@ -86,18 +85,6 @@ class FoursquareClient {
     }
   }
 
-  private def queryParams2String(params: Map[String, String]): String = {
-    params.map {
-      case (key, value) => s"$key=$value"
-    }.mkString("&")
-  }
-
-  private def params2Form(params: Map[String, String]): Seq[NameValuePair] = {
-    params.map {
-      case (key: String, value: String) => new BasicNameValuePair(key, value)
-    }.toSeq
-  }
-
 }
 
 
@@ -105,10 +92,10 @@ object FoursquareClient {
   val VenueEndpoint = "https://api.foursquare.com/v2/venues/search"
   val ClientSecret = "FMTHCUNEIHNIVZUOCWOZHZEFL33GII2NZNTV4Z3RLHZ23PTK"
   val ClientId = "NVLWVF0KX0EFP4CZLDCF3YLOBRY2L4VZXUGRUPBHW0ROT2YE"
-  val Radius = 30.toString
-  val Version = 20140503.toString
+  val Radius = 20
+  val Version = 20140503
   val Locale = "en"
-  val Limit = 1.toString
+  val Limit = 1
   val Intent = "checkin"
   val Mode = "foursquare"
   val ContextCategoryIds = Map(

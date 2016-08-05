@@ -69,3 +69,11 @@ case class SubmitUserInfoRequest(userId: String, vendorId: String, advertisingId
 case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId: String, timezoneOffsetMins: Int)
 case class SubmitUserProfile(sprayCtx: RequestContext, request: SubmitUserInfoMessage)
 case class UserProfileResponse(profileId: Long)
+
+case class RecommendationsResponse(
+  order: List[OrderItem],
+  musicItems: List[MusicItem],
+  videoItems: List[VideoItem])
+case class MusicItem(id: Long, title: String, artist: String, url: String, duration: Int, artwork: String)
+case class VideoItem(id: Long, title: String, url: String, duration: Int, artwork: String)
+case class OrderItem(`type`: String, id: Long)
