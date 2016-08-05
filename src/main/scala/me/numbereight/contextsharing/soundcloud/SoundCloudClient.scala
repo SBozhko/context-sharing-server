@@ -20,7 +20,7 @@ import scala.collection.mutable
 import scala.util.Random
 import scala.util.Try
 
-class SoundcloudClient {
+class SoundCloudClient {
   implicit val formats = DefaultFormats
   val log = LoggerFactory.getLogger(getClass)
   val tracks = mutable.Map[String, List[SoundCloudTrack]]() // TODO: Use Guava cache
@@ -28,7 +28,7 @@ class SoundcloudClient {
   def populateTracks(): Unit = {
     log.info("Started loading tracks from SoundCloud")
     tracks.clear()
-    for (entry <- SoundcloudClient.SituationTags;
+    for (entry <- SoundCloudClient.SituationTags;
          situationContext = entry._1;
          tag <- entry._2) {
 
@@ -42,22 +42,22 @@ class SoundcloudClient {
 
   def getLoadedTracks(situationContextName: String): List[SoundCloudTrack] = {
     log.debug(s"Loading tracks for context $situationContextName")
-    Random.shuffle(tracks.getOrElse(situationContextName, List())).take(SoundcloudClient.NumberOfRecommendations)
+    Random.shuffle(tracks.getOrElse(situationContextName, List())).take(SoundCloudClient.NumberOfRecommendations)
   }
 
   def getTracks(tag: String): List[SoundCloudTrack] = {
     val queryParams = Map(
-      "client_id" -> SoundcloudClient.ClientId,
-      "filter" -> SoundcloudClient.Filter,
-      "duration-from" -> SoundcloudClient.DurationFrom,
-      "duration-to" -> SoundcloudClient.DurationTo,
-      "limit" -> SoundcloudClient.Limit,
-      "order" -> SoundcloudClient.Order,
+      "client_id" -> SoundCloudClient.ClientId,
+      "filter" -> SoundCloudClient.Filter,
+      "duration-from" -> SoundCloudClient.DurationFrom,
+      "duration-to" -> SoundCloudClient.DurationTo,
+      "limit" -> SoundCloudClient.Limit,
+      "order" -> SoundCloudClient.Order,
       "tags" -> URLEncoder.encode(tag, "UTF-8"))
 
     val queryString = HttpClientUtils.queryParams2String(queryParams)
 
-    val httpResponse = Request.Get(s"${SoundcloudClient.Url}?$queryString")
+    val httpResponse = Request.Get(s"${SoundCloudClient.Url}?$queryString")
       .execute()
       .returnResponse()
 
@@ -79,7 +79,7 @@ class SoundcloudClient {
                 val permalink = HttpClientUtils.parseAsString(item \ "permalink_url")
                 val artwork = item \ "artwork_url" match {
                   case JString(value) => value.replaceFirst("-large.", "-t300x300.")
-                  case JNull => SoundcloudClient.DefaultArtwork
+                  case JNull => SoundCloudClient.DefaultArtwork
                   case unknown => throw new IllegalArgumentException(s"Unexpected value for json field: $unknown")
                 }
                 val title = HttpClientUtils.parseAsString(item \ "title")
@@ -103,7 +103,7 @@ class SoundcloudClient {
 }
 
 
-object SoundcloudClient {
+object SoundCloudClient {
   val Url = "https://api.soundcloud.com/tracks.json"
   val ClientId = "580e143e5540bfe1a6de0fcb4f9cf26e"
   val Filter = "streamable"
