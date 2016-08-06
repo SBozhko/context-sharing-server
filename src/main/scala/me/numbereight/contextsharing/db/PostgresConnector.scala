@@ -71,6 +71,14 @@ object PostgresConnector {
                 vendor_id varchar(50),
                 advertising_id varchar(50) UNIQUE,
                 timezone_offset_minutes smallint
+              );
+              CREATE TABLE IF NOT EXISTS place_dictionary (
+                id serial primary key,
+                vendor_id varchar(50),
+                latitude double precision,
+                longitude double precision,
+                place varchar(20),
+                submit_at_unix_time bigint
               )
           """.execute.apply()
       }

@@ -41,7 +41,7 @@ trait PlaceHttpService extends BaseHttpService {
         Try {
           val req = Serialization.read[SubmitPlaceRequest](sprayCtx.request.entity.asString)
           val latLong = LatLong(req.lat, req.long)
-          val setPlaceMsg = SetPlace(sprayCtx, req.placeName, latLong)
+          val setPlaceMsg = SetPlace(sprayCtx, req.placeName, latLong, req.vendorId)
           placeActor.tell(setPlaceMsg, ActorRef.noSender)
         }.recover {
           case t: Throwable =>
