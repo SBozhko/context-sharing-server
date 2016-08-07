@@ -44,10 +44,10 @@ class PlaceActor(
             distances.minBy(_._2)._1
           }
         case onePlace :: Nil =>
-          onePlace
+          onePlace._1
         case onePlace :: rest =>
           log.warning(s"More than one place: $placesFromDb found by location: ${msg.latLong}")
-          onePlace
+          onePlace._1
       }
 
       if (msg.vendorId.isDefined) {

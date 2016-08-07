@@ -9,6 +9,7 @@ import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
 class PostgresPlaceDictionaryClient(cpName: String) {
   val log = LoggerFactory.getLogger(getClass)
+  val RadiusToSearchLocationInMeters = 30 // got it experimentally
 
   def savePlaceData(placeEvent: PlaceEvent): Unit = {
     try {
@@ -32,22 +33,22 @@ class PostgresPlaceDictionaryClient(cpName: String) {
     }
   }
 
-  def getPlaceData(latLong: LatLong, vendorId: Option[String]): List[String] = {
+  def getPlaceData(latLong: LatLong, vendorId: Option[String]): List[(String, Double)] = {
     try {
       NamedDB(cpName) localTx { implicit session =>
 
         val select =
         // http://johanndutoit.net/searching-in-a-radius-using-postgres/
           sql"""
-                SELECT place FROM
+                SELECT place, distance_from_current_location FROM
                 (SELECT a.place, earth_distance(ll_to_earth(${latLong.lat}, ${latLong.long}), ll_to_earth(a.latitude, a.longitude))
                 AS distance_from_current_location
                 FROM place_dictionary a
                 ORDER BY distance_from_current_location ASC)
                 AS results
-                WHERE distance_from_current_location < 20;
+                WHERE distance_from_current_location <= $RadiusToSearchLocationInMeters;
             """
-        select.map(rs => rs.string("place")).list().apply()
+        select.map(rs => (rs.string("place"), rs.double("distance_from_current_location"))).list().apply()
       }
     } catch {
       case e: Exception =>
