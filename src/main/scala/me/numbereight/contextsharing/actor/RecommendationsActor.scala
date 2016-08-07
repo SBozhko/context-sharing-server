@@ -10,6 +10,7 @@ import me.numbereight.contextsharing.model.MusicItem
 import me.numbereight.contextsharing.model.OrderItem
 import me.numbereight.contextsharing.model.RecommendationsResponse
 import me.numbereight.contextsharing.soundcloud.SoundCloudClient
+import me.numbereight.contextsharing.youtube.YouTubeClient
 import spray.http.StatusCodes
 import spray.routing.RequestContext
 

@@ -29,6 +29,7 @@ import me.numbereight.contextsharing.http.RecommendationsHttpService
 import me.numbereight.contextsharing.http.UserProfileHttpService
 import me.numbereight.contextsharing.http.UserStatsHttpService
 import me.numbereight.contextsharing.soundcloud.SoundCloudClient
+import me.numbereight.contextsharing.youtube.YouTubeClient
 import org.slf4j.LoggerFactory
 import spray.can.Http
 import spray.can.Http.Bind
