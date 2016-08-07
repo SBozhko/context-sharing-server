@@ -76,7 +76,8 @@ object Bootstrap {
     val userProfileHttpService = UserProfileHttpService(system, userProfileActor)
 
     val soundCloudClient = new SoundCloudClient()
-    val recommendationsActor = system.actorOf(RecommendationsActor.props(soundCloudClient))
+    val youTubeClient = new YouTubeClient()
+    val recommendationsActor = system.actorOf(RecommendationsActor.props(soundCloudClient, youTubeClient))
     val recommendationsHttpService = RecommendationsHttpService(system, recommendationsActor, ctxStorageActor)
 
     system.scheduler.schedule(
@@ -85,6 +86,15 @@ object Bootstrap {
       new Runnable {
         override def run(): Unit = {
           soundCloudClient.populateTracks()
+        }
+      })(ExecutionContext.Implicits.global)
+
+    system.scheduler.schedule(
+      new FiniteDuration(3, TimeUnit.SECONDS),
+      new FiniteDuration(6, TimeUnit.HOURS),
+      new Runnable {
+        override def run(): Unit = {
+          youTubeClient.populateVideos()
         }
       })(ExecutionContext.Implicits.global)
 
