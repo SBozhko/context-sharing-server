@@ -18,6 +18,7 @@ import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
+import me.numbereight.contextsharing.db.PostgresPlaceDictionaryClient
 import me.numbereight.contextsharing.db.PostgresPlaceHistoryClient
 import me.numbereight.contextsharing.db.PostgresUserProfileClient
 import me.numbereight.contextsharing.foursquare.FoursquareClient
@@ -49,6 +50,7 @@ object Bootstrap {
     val pgContextClient = new PostgresContextHistoryClient(pgPoolName)
     val pgPlaceClient = new PostgresPlaceHistoryClient(pgPoolName)
     val pgUserProfileClient = new PostgresUserProfileClient(pgPoolName)
+    val pgPlaceDictionaryClient = new PostgresPlaceDictionaryClient(pgPoolName)
 
     implicit val system = ActorSystem("contextSharing")
 
@@ -67,7 +69,7 @@ object Bootstrap {
     val userStatsActor = system.actorOf(UserStatsActor.props(pgContextClient, pgUserProfileClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
 
-    val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient(), pgPlaceClient))
+    val placeActor = system.actorOf(PlaceActor.props(new FoursquareClient(), pgPlaceClient, pgPlaceDictionaryClient))
     val placeHttpService = PlaceHttpService(system, placeActor)
 
     val userProfileActor = system.actorOf(UserProfileActor.props(pgUserProfileClient))
