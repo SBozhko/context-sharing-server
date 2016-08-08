@@ -29,7 +29,7 @@ trait UserProfileHttpService extends BaseHttpService {
         val timezoneStr = req.timezone.replaceFirst("UTC", "")
         Try(timezoneStr.toDouble / 100) match {
           case Success(timezone) =>
-            val userInfoMessage = SubmitUserInfoMessage(req.userId, req.vendorId, req.advertisingId, (timezone * 60).toInt)
+            val userInfoMessage = SubmitUserInfoMessage(req.userId, req.vendorId, req.advertisingId, (timezone * 60).toInt, req.name)
             val message = SubmitUserProfile(sprayCtx, userInfoMessage)
             userProfileActor.tell(message, ActorRef.noSender)
           case Failure(_) =>

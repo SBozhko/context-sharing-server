@@ -65,8 +65,8 @@ case class GetPlace(sprayCtx: RequestContext, latLong: LatLong, vendorId: Option
 case class PlaceResponse(place: String)
 case class PlaceEvent(latLong: LatLong, vendorId: String, place: String)
 
-case class SubmitUserInfoRequest(userId: String, vendorId: String, advertisingId: String, timezone: String)
-case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId: String, timezoneOffsetMins: Int)
+case class SubmitUserInfoRequest(userId: String, vendorId: String, advertisingId: String, timezone: String, name: Option[String])
+case class SubmitUserInfoMessage(userId: String, vendorId: String, advertisingId: String, timezoneOffsetMins: Int, name: Option[String])
 case class SubmitUserProfile(sprayCtx: RequestContext, request: SubmitUserInfoMessage)
 case class UserProfileResponse(profileId: Long)
 
