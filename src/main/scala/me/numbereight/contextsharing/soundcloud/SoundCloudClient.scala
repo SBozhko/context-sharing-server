@@ -2,7 +2,6 @@ package me.numbereight.contextsharing.soundcloud
 
 import java.net.URLEncoder
 
-import me.numbereight.contextsharing.model.ContextNames.Mood
 import me.numbereight.contextsharing.model.ContextNames.Situation
 import me.numbereight.contextsharing.model.SoundCloudTrack
 import me.numbereight.contextsharing.util.HttpClientUtils
@@ -113,20 +112,106 @@ object SoundCloudClient {
   val Order = "hotness"
   val DefaultArtwork = "http://media-assets-04.thedrum.com/cache/images/thedrum-prod/news-tmp-116055-soundcloud-logo--default--300.png"
 
-  val MoodTags = Map(
-    Mood.Happy -> List("Happy", "Playful", "Fun", "Excited", "Surprised", "Cheerful", "Bright", "Merry", "Majestic", "Joy"),
-    Mood.Angry -> List("Angry", "Intense", "Heavy", "Aggressive", "Fear", "Fiery", "Anger", "Boisterous", "Rousing", "Dark", "Scary"),
-    Mood.Sad -> List("Sad", "Depressing", "Melancholy", "Bittersweet", "Sentimental", "Gloomy", "Tragic", "Anxious", "Sadness", "Pathetic", "Mysterious"),
-    Mood.Calm -> List("Calm", "Dreamy", "Soothing", "Sleepy", "Quiet", "Spiritual", "Tranquil", "Tender", "Serene", "Relaxed"))
-
   val SituationTags = Map(
-    Situation.Housework -> List("Housework", "Fun", "Feel good", "Positive vibes", "Upbeat", "Classic", "Chores", "Energy", "Laundry", "Cleaning"),
-    Situation.Relaxing -> List("Chill", "Relax", "Acoustic", "Happy", "Summer", "Throwback", "Beach", "Nature", "Instrumental", "Calm"),
-    Situation.Working -> List("Classical", "Ambient", "Piano", "Concentration", "Focus", "Reading", "Studying", "Instrumental", "Exam", "Soundtrack"),
-    Situation.OnTheGo -> List("Upbeat", "Cruising", "Jamming", "Adventure", "Driving", "Car", "Holiday", "Party", "Roadtrip", "Retro"),
-    Situation.Workout -> List("Gym", "Fitness", "Workout", "Remix", "Dance", "Mashup", "Running", "Party", "Pump up", "Club", "Cardio"),
-    Situation.Relaxing -> List("Meditation", "Classical", "Nature", "Sad", "Acoustic", "Sleep", "Slow", "Sex", "Tired", "Soft"),
-    Situation.WakeUp -> List("Wake up", "Morning", "Motivation", "Coffee", "Good vibes", "Sunshine", "Rain", "Cheer", "Get ready", "Awake"))
+    Situation.Housework -> List(
+      "energetic",
+      "catchy",
+      "happy",
+      "sweet",
+      "guilty pleasure",
+      "smile",
+      "sing along",
+      "positive",
+      "fun",
+      "quirky",
+      "ambient"),
+    Situation.Bedtime -> List(
+      "relaxing",
+      "calm",
+      "mellow",
+      "dreamy",
+      "sad",
+      "beautiful",
+      "ballad",
+      "meditative",
+      "peaceful",
+      "soothing",
+      "relaxation",
+      "instrumental"),
+    Situation.Working -> List(
+      "chill",
+      "classical",
+      "piano",
+      "instrumental",
+      "new age",
+      "ambient",
+      "beautiful",
+      "mellow",
+      "relax",
+      "soundtrack",
+      "composer",
+      "studying",
+      "working"),
+    Situation.OnTheGo -> List(
+      "steampunk",
+      "dj",
+      "driving",
+      "progressive",
+      "feel good",
+      "groovy",
+      "roadtrip",
+      "super",
+      "funky",
+      "psycheledic"),
+    Situation.Workout -> List(
+      "dance",
+      "electronic",
+      "gym",
+      "house",
+      "fun",
+      "club",
+      "party",
+      "mix",
+      "mashups",
+      "workout",
+      "motivation",
+      "running",
+      "cardio"),
+    Situation.Relaxing -> List(
+      "relaxing",
+      "atmospheric",
+      "easy listening",
+      "soothing",
+      "lounge",
+      "chill",
+      "summer",
+      "uplifting",
+      "chillout",
+      "beautiful",
+      "beach",
+      "sunny"),
+    Situation.WakeUp -> List(
+      "summer",
+      "upbeat",
+      "feel good",
+      "awesome",
+      "chill",
+      "morning",
+      "happy",
+      "amazing",
+      "acoustic",
+      "fun"),
+    Situation.Party -> List(
+      "dance",
+      "party",
+      "pop",
+      "upbeat",
+      "club",
+      "schlager",
+      "house",
+      "summer",
+      "remix",
+      "electro"))
 
   val NumberOfRecommendations = 5
 
