@@ -79,7 +79,7 @@ class YouTubeClient {
               val videoId = HttpClientUtils.parseAsString(i \ "id" \ "videoId")
               val permalink = s"https://www.youtube.com/watch?v=$videoId"
               val title = HttpClientUtils.parseAsString(i \ "snippet" \ "title")
-              val artwork = HttpClientUtils.parseAsString(i \ "snippet" \ "thumbnails" \ "medium" \ "url")
+              val artwork = HttpClientUtils.parseAsString(i \ "snippet" \ "thumbnails" \ "high" \ "url")
               YouTubeVideo(videoId, title, permalink, artwork)
             }
           case _ =>
