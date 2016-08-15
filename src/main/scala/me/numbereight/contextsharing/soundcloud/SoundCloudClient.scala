@@ -83,7 +83,14 @@ class SoundCloudClient {
                 }
                 val title = HttpClientUtils.parseAsString(item \ "title")
                 val username = HttpClientUtils.parseAsString(item \ "user" \ "username")
-                Some(new SoundCloudTrack(id, duration, permalink, artwork, title, username))
+                val streamable = HttpClientUtils.parseAsBoolean(item \ "streamable")
+                streamable match {
+                  case true =>
+                    val streamUrl = HttpClientUtils.parseAsString(item \ "stream_url")
+                    Some(new SoundCloudTrack(id, duration, permalink, streamUrl, artwork, title, username))
+                  case false =>
+                    None
+                }
               }.recover {
                 case t: Throwable =>
                   log.error("Unable to parse response from SoundCloud", t)

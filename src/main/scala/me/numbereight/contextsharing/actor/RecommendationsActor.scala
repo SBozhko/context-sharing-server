@@ -27,7 +27,7 @@ class RecommendationsActor(soundCloudClient: SoundCloudClient, youtubeClient: Yo
       val scMusicItems = soundCloudClient.getLoadedTracks(situation.ctxName)
 
       val musicItemsForResponse = scMusicItems.map { item =>
-        MusicItem(item.id, item.title, item.username, item.permalinkUrl, item.duration, item.artworkUrl)
+        MusicItem(item.id, item.title, item.username, item.permalinkUrl, item.streamUrl, item.duration, item.artworkUrl)
       }
 
       val musicOrderItems = musicItemsForResponse.map { item =>
