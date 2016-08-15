@@ -75,7 +75,7 @@ case class RecommendationsResponse(
   musicItems: List[MusicItem],
   videoItems: List[VideoItem])
 case class MusicItem(id: Long, title: String, artist: String, url: String, streamUrl: String, duration: Int, artwork: String)
-case class VideoItem(id: Long, title: String, url: String, duration: Int, artwork: String)
+case class VideoItem(id: Long, title: String, url: String, embedUrl: String, duration: Int, artwork: String)
 case class OrderItem(`type`: String, id: Long)
 
 case class SubmitPlaceRequest(vendorId: String, placeName: String, lat: Double, long: Double)

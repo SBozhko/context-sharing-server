@@ -34,13 +34,13 @@ class YouTubeClient {
       val ytVideos = getVideos(tag)
       val durations = getDuration(ytVideos)
 
-      val videosWithDurtion = ytVideos.map { item =>
+      val videosWithDuration = ytVideos.map { item =>
         id = id + 1
-        VideoItem(id, item.title, item.permalink, durations.getOrElse(item.id, 0), item.artwork)
+        VideoItem(id, item.title, item.permalink, item.embedUrl, durations.getOrElse(item.id, 0), item.artwork)
       }
 
       val existingVideos = videos.getOrElse(situationContext, List())
-      videos.put(situationContext, videosWithDurtion ++ existingVideos)
+      videos.put(situationContext, videosWithDuration ++ existingVideos)
     }
     log.info("Videos from YouTube loaded successfully")
   }
@@ -78,9 +78,10 @@ class YouTubeClient {
             videos.map { i =>
               val videoId = HttpClientUtils.parseAsString(i \ "id" \ "videoId")
               val permalink = s"https://www.youtube.com/watch?v=$videoId"
+              val embedUrl = s"https://www.youtube.com/embed/$videoId"
               val title = HttpClientUtils.parseAsString(i \ "snippet" \ "title")
               val artwork = HttpClientUtils.parseAsString(i \ "snippet" \ "thumbnails" \ "high" \ "url")
-              YouTubeVideo(videoId, title, permalink, artwork)
+              YouTubeVideo(videoId, title, permalink, embedUrl, artwork)
             }
           case _ =>
             log.error(s"Unable to parse response from Foursquare. $jsonResponse")
