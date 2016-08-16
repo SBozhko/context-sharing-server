@@ -6,8 +6,9 @@ import me.numbereight.contextsharing.actor.ContextStorageActor.GetLastContextDat
 import me.numbereight.contextsharing.actor.ContextStorageActor.LastContextData
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
 import me.numbereight.contextsharing.model.ContextData
-import me.numbereight.contextsharing.model.Response
+import me.numbereight.contextsharing.model.ContextDataPair
 import me.numbereight.contextsharing.model.SubmitContextActorRequest
+import me.numbereight.contextsharing.model.SubmitContextResponse
 import spray.http.StatusCodes
 
 
@@ -16,7 +17,8 @@ class ContextStorageActor(client: PostgresContextHistoryClient) extends BaseHttp
   override def receive: Actor.Receive = {
     case msg: SubmitContextActorRequest =>
       client.saveContextData(msg.request)
-      sendResponse(msg.sprayCtx, StatusCodes.OK, Response("Successfully stored"))
+      val responseList = msg.request.contextData.map(item => ContextDataPair(item.ctxGroup, item.ctxName))
+      sendResponse(msg.sprayCtx, StatusCodes.OK, SubmitContextResponse(responseList))
       log.debug(s"Stored contextData: ${msg.request}")
     case msg: GetLastContextData =>
       sender.tell(LastContextData(client.getLastContextData(msg.profileId)), context.self)

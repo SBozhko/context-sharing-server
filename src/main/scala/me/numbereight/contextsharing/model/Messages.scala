@@ -40,13 +40,12 @@ object VersionResponse {
 }
 
 
-case class SubmitContextRequest(
-  profileId: Long,
-  contextData: List[ContextData]
-)
+case class SubmitContextRequest(profileId: Long, contextData: List[ContextData])
+case class SubmitContextResponse(contextData: List[ContextDataPair])
 
 case class SubmitContextActorRequest(sprayCtx: RequestContext, request: SubmitContextRequest)
-case class ContextData(ctxGroup: String, ctxName: String)
+case class ContextData(ctxGroup: String, ctxName: String, manual: Boolean = false)
+case class ContextDataPair(ctxGroup: String, ctxName: String)
 
 case class GetUserStatsRequest(profileId: Long, ctxGroups: List[String], period: String)
 case class GetUserStatsActorRequest(sprayCtx: RequestContext, request: GetUserStatsRequest)
