@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.actor
 import akka.actor.Actor
 import akka.actor.Props
 import me.numbereight.contextsharing.actor.RecommendationsActor.GetItems
-import me.numbereight.contextsharing.model.ContextData
+import me.numbereight.contextsharing.model.ContextDataPair
 import me.numbereight.contextsharing.model.ContextGroups
 import me.numbereight.contextsharing.model.ContextNames.Situation
 import me.numbereight.contextsharing.model.MusicItem
@@ -22,7 +22,7 @@ class RecommendationsActor(soundCloudClient: SoundCloudClient, youtubeClient: Yo
     case msg: GetItems =>
       log.debug(s"Get recommendations request for profile id: ${msg.profileId}")
 
-      val situation = msg.contextData.getOrElse(ContextData(ContextGroups.Situation, Situation.Workout)) // TODO: decide on this context
+      val situation = msg.contextData.getOrElse(ContextDataPair(ContextGroups.Situation, Situation.Workout)) // TODO: decide on this context
 
       val scMusicItems = soundCloudClient.getLoadedTracks(situation.ctxName)
 
@@ -60,7 +60,7 @@ object RecommendationsActor {
     Props.create(classOf[RecommendationsActor], soundCloudClient, youtubeClient)
   }
 
-  case class GetItems(sprayCtx: RequestContext, profileId: Long, contextData: Option[ContextData])
+  case class GetItems(sprayCtx: RequestContext, profileId: Long, contextData: Option[ContextDataPair])
 
 }
 

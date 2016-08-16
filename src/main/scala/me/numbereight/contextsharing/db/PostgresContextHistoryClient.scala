@@ -1,11 +1,10 @@
 package me.numbereight.contextsharing.db
 
-import me.numbereight.contextsharing.model.ContextData
+import me.numbereight.contextsharing.model.ContextDataPair
 import me.numbereight.contextsharing.model.ContextGroups
 import me.numbereight.contextsharing.model.CtxPercentage
 import me.numbereight.contextsharing.model.CtxStats
 import me.numbereight.contextsharing.model.GetUserStatsRequest
-import me.numbereight.contextsharing.model.SubmitContextRequest
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import scalikejdbc.NamedDB
@@ -17,17 +16,17 @@ class PostgresContextHistoryClient(cpName: String) {
 
   val log = LoggerFactory.getLogger(getClass)
 
-  def saveContextData(request: SubmitContextRequest): Unit = {
+  def saveContextData(profileId: Long, contextData: List[ContextDataPair]): Unit = {
     try {
       NamedDB(cpName) localTx { implicit session =>
 
         val date = new DateTime().getMillis
 
-        request.contextData.foreach { ctxPair =>
+        contextData.foreach { ctxPair =>
           val insert =
             sql"""
                 INSERT INTO context_history (user_profile_id, context_group, context_name, context_started_at_unix_time)
-                VALUES (${request.profileId}, ${ctxPair.ctxGroup}, ${ctxPair.ctxName}, $date)
+                VALUES (${profileId}, ${ctxPair.ctxGroup}, ${ctxPair.ctxName}, $date)
             """
           insert.updateAndReturnGeneratedKey().apply()
         }
@@ -38,7 +37,7 @@ class PostgresContextHistoryClient(cpName: String) {
     }
   }
 
-  def getLastContextData(profileId: Long): Option[ContextData] = {
+  def getLastContextData(profileId: Long): Option[ContextDataPair] = {
     try {
       NamedDB(cpName) localTx { implicit session =>
 
@@ -55,7 +54,7 @@ class PostgresContextHistoryClient(cpName: String) {
         }.single().apply()
 
         result match {
-          case Some(value) => Some(ContextData(ContextGroups.Situation, value))
+          case Some(value) => Some(ContextDataPair(ContextGroups.Situation, value))
           case _ =>
             log.warn(s"No context data for user with profileId: $profileId")
             None

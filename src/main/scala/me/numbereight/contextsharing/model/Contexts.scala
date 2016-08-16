@@ -3,7 +3,7 @@ package me.numbereight.contextsharing.model
 trait Contexts {
   val All: Set[String]
 
-  def valid(ctxName: String): Boolean = All.contains(ctxName)
+  def valid(ctx: String): Boolean = All.contains(ctx)
 }
 
 object ContextGroups extends Contexts {

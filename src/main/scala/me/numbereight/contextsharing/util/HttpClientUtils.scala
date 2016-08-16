@@ -5,6 +5,7 @@ import org.apache.http.message.BasicNameValuePair
 import org.json4s.JValue
 import org.json4s.JsonAST.JBool
 import org.json4s.JsonAST.JInt
+import org.json4s.JsonAST.JNull
 import org.json4s.JsonAST.JString
 
 object HttpClientUtils {
@@ -31,6 +32,7 @@ object HttpClientUtils {
   def parseAsBoolean(jValue: JValue): Boolean = {
     jValue match {
       case JBool(value) => value
+      case JNull => false
       case unknown => throw new IllegalArgumentException(s"Unexpected value for json field: $unknown")
     }
   }

@@ -10,6 +10,7 @@ import me.numbereight.contextsharing.actor.ContextStorageActor
 import me.numbereight.contextsharing.actor.DeadLetterListenerActor
 import me.numbereight.contextsharing.actor.IsAliveServiceActor
 import me.numbereight.contextsharing.actor.LifecycleListenerActor
+import me.numbereight.contextsharing.actor.ManualContextDataActor
 import me.numbereight.contextsharing.actor.PlaceActor
 import me.numbereight.contextsharing.actor.RecommendationsActor
 import me.numbereight.contextsharing.actor.RestEndpointActor
@@ -18,6 +19,7 @@ import me.numbereight.contextsharing.actor.UserStatsActor
 import me.numbereight.contextsharing.config.RuntimeConfiguration
 import me.numbereight.contextsharing.db.PostgresConnector
 import me.numbereight.contextsharing.db.PostgresContextHistoryClient
+import me.numbereight.contextsharing.db.PostgresManualContextUpdatesClient
 import me.numbereight.contextsharing.db.PostgresPlaceDictionaryClient
 import me.numbereight.contextsharing.db.PostgresPlaceHistoryClient
 import me.numbereight.contextsharing.db.PostgresUserProfileClient
@@ -52,6 +54,7 @@ object Bootstrap {
     val pgPlaceClient = new PostgresPlaceHistoryClient(pgPoolName)
     val pgUserProfileClient = new PostgresUserProfileClient(pgPoolName)
     val pgPlaceDictionaryClient = new PostgresPlaceDictionaryClient(pgPoolName)
+    val pgManualContextClient = new PostgresManualContextUpdatesClient(pgPoolName)
 
     implicit val system = ActorSystem("contextSharing")
 
@@ -64,8 +67,9 @@ object Bootstrap {
     val isAliveActor = system.actorOf(IsAliveServiceActor.props(pgPoolName))
     val applicationInfoHttpService = ApplicationInfoHttpService(system, isAliveActor)
 
+    val manualOverrideActor = system.actorOf(ManualContextDataActor.props(pgManualContextClient))
     val ctxStorageActor = system.actorOf(ContextStorageActor.props(pgContextClient))
-    val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor)
+    val ctxStorageHttpService = ContextStorageHttpService(system, ctxStorageActor, manualOverrideActor)
 
     val userStatsActor = system.actorOf(UserStatsActor.props(pgContextClient, pgUserProfileClient))
     val userStatsHttpService = UserStatsHttpService(system, userStatsActor)
