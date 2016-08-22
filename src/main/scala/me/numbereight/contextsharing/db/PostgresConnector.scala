@@ -82,7 +82,7 @@ object PostgresConnector {
               );
               CREATE TABLE IF NOT EXISTS manual_context_updates (
                 id serial primary key,
-                user_profile_id_id integer,
+                user_profile_id integer,
                 context_group varchar(20),
                 context_name varchar(20),
                 context_updated_at_unix_time bigint

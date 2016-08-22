@@ -48,7 +48,7 @@ class PostgresManualContextUpdatesClient(cpName: String) {
                 SELECT context_name, context_updated_at_unix_time FROM manual_context_updates
                 WHERE user_profile_id = $profileId
                 AND context_group = $ctxGroup
-                AND context_updated_at_unix_time > $DurationToOverrideContextMillis
+                AND context_updated_at_unix_time > $timestampOfInsert
                 ORDER BY context_updated_at_unix_time DESC
                 LIMIT 1;
             """
