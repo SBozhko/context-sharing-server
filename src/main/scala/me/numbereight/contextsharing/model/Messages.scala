@@ -43,7 +43,7 @@ object VersionResponse {
 case class SubmitContextRequest(profileId: Long, contextData: List[ContextData])
 case class SubmitContextResponse(contextData: List[ContextDataPair])
 
-case class ContextData(ctxGroup: String, ctxName: String, manual: Boolean)
+case class ContextData(ctxGroup: String, ctxName: String, manual: Boolean = false)
 case class ContextDataPair(ctxGroup: String, ctxName: String)
 case class ContextManuallyUpdated(name: String, updatedAt: Long)
 
