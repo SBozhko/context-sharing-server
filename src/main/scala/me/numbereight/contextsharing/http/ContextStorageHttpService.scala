@@ -62,7 +62,7 @@ trait ContextStorageHttpService extends BaseHttpService {
         item
       } else {
         if (item.manual && ContextGroups.valid(item.ctxGroup)) {
-          item.copy(ctxName = item.ctxName.substring(0, 20))
+          item.copy(ctxName = if (item.ctxName.length > 20) item.ctxName.substring(0, 20) else item.ctxName)
         } else {
           valid = Left(s"Wrong ContextName(s) and/or ContextGroup(s) $item")
           item
