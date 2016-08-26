@@ -77,7 +77,7 @@ class SoundCloudClient {
                 val duration = HttpClientUtils.parseAsLong(item \ "duration").toInt
                 val permalink = HttpClientUtils.parseAsString(item \ "permalink_url")
                 val artwork = item \ "artwork_url" match {
-                  case JString(value) => value.replaceFirst("-large.", "-t300x300.")
+                  case JString(value) => value.replaceFirst("-large.", "-t500x500.")
                   case JNull => SoundCloudClient.DefaultArtwork
                   case unknown => throw new IllegalArgumentException(s"Unexpected value for json field: $unknown")
                 }
@@ -117,7 +117,7 @@ object SoundCloudClient {
   val DurationTo = 1800000
   val Limit = 10
   val Order = "hotness"
-  val DefaultArtwork = "http://media-assets-04.thedrum.com/cache/images/thedrum-prod/news-tmp-116055-soundcloud-logo--default--300.png"
+  val DefaultArtwork = "http://www.okayplayer.com/wp-content/uploads/2015/03/soundcloud-logo-square.jpg" // 500x500
 
   val SituationTags = Map(
     Situation.Housework -> List(
