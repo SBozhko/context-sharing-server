@@ -26,6 +26,7 @@ import me.numbereight.contextsharing.db.PostgresUserProfileClient
 import me.numbereight.contextsharing.foursquare.FoursquareClient
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
+import me.numbereight.contextsharing.http.MediaTimingHttpService
 import me.numbereight.contextsharing.http.PlaceHttpService
 import me.numbereight.contextsharing.http.RecommendationsHttpService
 import me.numbereight.contextsharing.http.UserProfileHttpService
@@ -85,6 +86,8 @@ object Bootstrap {
     val recommendationsActor = system.actorOf(RecommendationsActor.props(soundCloudClient, youTubeClient))
     val recommendationsHttpService = RecommendationsHttpService(system, recommendationsActor, ctxStorageActor)
 
+    val mediaTimingHttpService = MediaTimingHttpService(system)
+
     system.scheduler.schedule(
       new FiniteDuration(3, TimeUnit.SECONDS),
       new FiniteDuration(6, TimeUnit.HOURS),
@@ -110,7 +113,8 @@ object Bootstrap {
         userStatsHttpService,
         placeHttpService,
         userProfileHttpService,
-        recommendationsHttpService
+        recommendationsHttpService,
+        mediaTimingHttpService
       ),
       RestEndpointActor.Name)
 

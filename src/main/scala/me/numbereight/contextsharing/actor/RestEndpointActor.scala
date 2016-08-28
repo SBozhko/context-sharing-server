@@ -3,6 +3,7 @@ package me.numbereight.contextsharing.actor
 import akka.actor.Props
 import me.numbereight.contextsharing.http.ApplicationInfoHttpService
 import me.numbereight.contextsharing.http.ContextStorageHttpService
+import me.numbereight.contextsharing.http.MediaTimingHttpService
 import me.numbereight.contextsharing.http.PlaceHttpService
 import me.numbereight.contextsharing.http.RecommendationsHttpService
 import me.numbereight.contextsharing.http.UserProfileHttpService
@@ -14,7 +15,8 @@ class RestEndpointActor(
   userStatsHttpService: UserStatsHttpService,
   placeHttpService: PlaceHttpService,
   userProfileHttpService: UserProfileHttpService,
-  recommendationsHttpService: RecommendationsHttpService)
+  recommendationsHttpService: RecommendationsHttpService,
+  mediaTimingHttpService: MediaTimingHttpService)
   extends BaseHttpServiceActor {
 
   def receive = runRoute(
@@ -23,7 +25,8 @@ class RestEndpointActor(
     userStatsHttpService.routes ~
     placeHttpService.routes ~
     userProfileHttpService.routes ~
-    recommendationsHttpService.routes)
+    recommendationsHttpService.routes ~
+    mediaTimingHttpService.routes)
 }
 
 object RestEndpointActor {
@@ -36,7 +39,8 @@ object RestEndpointActor {
     userStatsHttpService: UserStatsHttpService,
     placeHttpService: PlaceHttpService,
     userProfileHttpService: UserProfileHttpService,
-    recommendationsHttpService: RecommendationsHttpService): Props = {
+    recommendationsHttpService: RecommendationsHttpService,
+    mediaTimingHttpService: MediaTimingHttpService): Props = {
 
     Props.create(
       classOf[RestEndpointActor],
@@ -45,7 +49,8 @@ object RestEndpointActor {
       userStatsHttpService,
       placeHttpService,
       userProfileHttpService,
-      recommendationsHttpService
+      recommendationsHttpService,
+      mediaTimingHttpService
     )
   }
 }
